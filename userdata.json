@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-16T18:25:56.901Z",
+  "savedAt": "2026-05-16T18:26:55.832Z",
   "version": 1,
   "stocks": [
     {
@@ -79,7 +79,7 @@
       "note": ""
     },
     {
-      "code": "玉山金",
+      "code": "2884",
       "type": "watch",
       "cost": null,
       "qty": 0,
