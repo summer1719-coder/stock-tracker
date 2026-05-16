@@ -843,6 +843,82 @@
     background: var(--surface2);
   }
   .glossary-item.open .glossary-a { display: block; }
+
+  /* type toggle in modal */
+  .type-toggle {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .type-toggle.active {
+    border-color: var(--accent2);
+    background: rgba(59,130,246,0.15);
+    color: var(--accent2);
+  }
+
+  /* profit pill on stock card */
+  .pl-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .pl-pill.up { background: rgba(239,68,68,0.12); color: var(--up); }
+  .pl-pill.down { background: rgba(34,197,94,0.12); color: var(--down); }
+  html.light .pl-pill.up { background: rgba(220,38,38,0.10); }
+  html.light .pl-pill.down { background: rgba(22,163,74,0.10); }
+
+  /* stock detail grid */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 14px;
+    margin-bottom: 4px;
+  }
+  .detail-cell {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .detail-cell-label {
+    font-size: var(--fs-xs);
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .detail-cell-val {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .edit-stock-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+  .edit-stock-btn:hover { border-color: var(--accent2); color: var(--accent2); }
 </style>
 </head>
 <body>
@@ -1089,32 +1165,64 @@
   </div>
 </div>
 
-<!-- Add Modal -->
+<!-- Add / Edit Modal -->
 <div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <div class="modal-title">新增標的</div>
-    <div class="form-row">
-      <label class="form-label">股票代號 / 名稱</label>
-      <input type="text" class="form-input" id="inputCode" placeholder="例：2330、台積電">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-title" id="addModalTitle">新增標的</div>
+
+    <!-- 類型切換 -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="type-toggle active" id="typeHold" onclick="setModalType('hold')">💼 持有</button>
+      <button class="type-toggle" id="typeWatch" onclick="setModalType('watch')">👁 觀察</button>
     </div>
+    <input type="hidden" id="inputType" value="hold">
+    <input type="hidden" id="editingStockIdx" value="">
+
     <div class="form-row">
-      <label class="form-label">類型</label>
-      <select class="form-input" id="inputType">
-        <option value="hold">💼 持有</option>
-        <option value="watch">👁 追蹤觀察</option>
-      </select>
+      <label class="form-label">股票代號</label>
+      <input type="text" class="form-input" id="inputCode" placeholder="例：2330、0050">
     </div>
-    <div class="form-row">
-      <label class="form-label">均價（持有時填）</label>
-      <input type="number" class="form-input" id="inputCost" placeholder="選填">
+
+    <!-- 持有專屬欄位 -->
+    <div id="holdFields">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-row">
+          <label class="form-label">均價（元）</label>
+          <input type="number" class="form-input" id="inputCost" placeholder="例：1813.91" step="0.01">
+        </div>
+        <div class="form-row">
+          <label class="form-label">持有張數</label>
+          <input type="number" class="form-input" id="inputQty" placeholder="例：5" min="0" step="1">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-row">
+          <label class="form-label">持有股數（非整張）</label>
+          <input type="number" class="form-input" id="inputShares" placeholder="例：500" min="0">
+        </div>
+        <div class="form-row">
+          <label class="form-label">首次買入日期</label>
+          <input type="date" class="form-input" id="inputBuyDate">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">停損價（選填）</label>
+        <input type="number" class="form-input" id="inputStopLoss" placeholder="跌到這個價位發出警示">
+      </div>
+      <div class="form-row">
+        <label class="form-label">目標價（選填）</label>
+        <input type="number" class="form-input" id="inputTarget" placeholder="漲到這個價位提醒考慮賣出">
+      </div>
     </div>
+
     <div class="form-row">
       <label class="form-label">備註</label>
       <input type="text" class="form-input" id="inputNote" placeholder="例：長期持有、等KD低檔">
     </div>
+
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeAddModal()">取消</button>
-      <button class="btn-confirm" onclick="addStock()">加入</button>
+      <button class="btn-confirm" id="addModalConfirm" onclick="addStock()">加入</button>
     </div>
   </div>
 </div>
@@ -1369,26 +1477,66 @@ function renderStocks() {
     const d = MOCK_STOCKS[s.code] || {};
     const up = (d.changePct || 0) >= 0;
     const cls = up ? 'up' : 'down';
-    const sign = up ? '+' : '';
-    const arrow = up ? '▲' : '▼';
     const changeAbs = d.change ? (up ? `+${d.change}` : d.change) : '-';
-    const changePct = d.changePct ? `${sign}${d.changePct.toFixed(2)}%` : '-';
+    const changePct = d.changePct ? `${(up?'+':'')}${d.changePct.toFixed(2)}%` : '-';
+
+    // 計算總股數（張數×1000 + 零股）
+    const totalShares = ((s.qty||0) * 1000) + (s.shares||0);
+
+    // 損益計算
+    let plHtml = '', plPct = 0, plAmt = 0;
+    if (s.type === 'hold' && s.cost && d.price) {
+      plPct = ((d.price - s.cost) / s.cost * 100);
+      plAmt = (d.price - s.cost) * totalShares;
+      const plCls = plPct >= 0 ? 'up' : 'down';
+      const plSign = plPct >= 0 ? '+' : '';
+      plHtml = `<span class="pl-pill ${plCls}">${plSign}${plPct.toFixed(2)}%</span>`;
+    }
+
+    // 市值
+    const marketVal = d.price && totalShares ? (d.price * totalShares) : null;
+
+    // 持有天數
+    let daysHeld = null;
+    if (s.buyDate) {
+      daysHeld = Math.floor((Date.now() - new Date(s.buyDate).getTime()) / 86400000);
+    }
 
     // Alert check
     let alertHtml = '';
-    if (Math.abs(d.changePct||0) > 4.5) alertHtml += `<div class="stock-alert">⚡ 今日漲幅超過 4.5%，注意追高風險或突破機會</div>`;
-    if (typeof d.pe === 'number' && d.pe > 500) alertHtml += `<div class="stock-alert">⚠️ 本益比 ${d.pe} 偏高，獲利尚未反映股價</div>`;
+    if (Math.abs(d.changePct||0) > 4.5)
+      alertHtml += `<div class="stock-alert">⚡ 今日${up?'漲':'跌'}幅超過 4.5%，注意${up?'追高風險':'止損時機'}</div>`;
+    if (typeof d.pe === 'number' && d.pe > 500)
+      alertHtml += `<div class="stock-alert">⚠️ 本益比 ${d.pe} 偏高，獲利尚未反映股價</div>`;
+    if (s.stopLoss && d.price && d.price <= s.stopLoss)
+      alertHtml += `<div class="stock-alert">🔴 已跌破停損價 ${s.stopLoss}，請評估是否停損</div>`;
+    if (s.target && d.price && d.price >= s.target)
+      alertHtml += `<div class="stock-alert">🎯 已達目標價 ${s.target}，可考慮獲利了結</div>`;
 
-    // Profit/loss
-    let plHtml = '';
-    if (s.type === 'hold' && s.cost && d.price) {
-      const pct = ((d.price - s.cost) / s.cost * 100).toFixed(2);
-      const pl = ((d.price - s.cost) * (s.qty||1)).toFixed(0);
-      const plCls = pct >= 0 ? 'up' : 'down';
-      plHtml = `<div class="metric">損益 <span class="${plCls}">${pct >= 0 ? '+' : ''}${pct}%</span></div>`;
+    const news = (NEWS[s.code] || []).map(n =>
+      `<div class="news-item"><span class="news-dot">•</span>${n}</div>`).join('');
+
+    // 詳細資訊格（只顯示有填的）
+    const cells = [];
+    if (s.cost)      cells.push(['均價', `${s.cost} 元`]);
+    if (s.qty||s.shares) {
+      const label = s.qty ? `${s.qty} 張${s.shares?` + ${s.shares}股`:''}` : `${s.shares} 股`;
+      cells.push(['持有', label]);
     }
+    if (marketVal)   cells.push(['市值', `${Math.round(marketVal).toLocaleString()} 元`]);
+    if (plAmt)       cells.push(['損益金額', `${plAmt >= 0 ? '+' : ''}${Math.round(plAmt).toLocaleString()} 元`]);
+    if (daysHeld !== null) cells.push(['持有天數', `${daysHeld} 天`]);
+    if (s.stopLoss)  cells.push(['停損價', `${s.stopLoss} 元`]);
+    if (s.target)    cells.push(['目標價', `${s.target} 元`]);
 
-    const news = (NEWS[s.code] || []).map(n => `<div class="news-item"><span class="news-dot">•</span>${n}</div>`).join('');
+    const detailGrid = cells.length ? `
+      <div class="detail-grid">
+        ${cells.map(([label, val]) => `
+          <div class="detail-cell">
+            <div class="detail-cell-label">${label}</div>
+            <div class="detail-cell-val" style="${label==='損益金額'?(plAmt>=0?'color:var(--up)':'color:var(--down)'):''}">${val}</div>
+          </div>`).join('')}
+      </div>` : '';
 
     list.innerHTML += `
     <div class="stock-card" id="card-${idx}" onclick="toggleCard(${idx})">
@@ -1397,14 +1545,17 @@ function renderStocks() {
           <div class="stock-name-row">
             <span class="stock-name">${d.name || s.code}</span>
             <span class="stock-code">${s.code}</span>
-            <span class="stock-tag ${s.type === 'hold' ? 'tag-hold' : 'tag-watch'}">${s.type === 'hold' ? '持有' : '觀察'}</span>
+            <span class="stock-tag ${s.type==='hold'?'tag-hold':'tag-watch'}">${s.type==='hold'?'持有':'觀察'}</span>
           </div>
-          <div class="stock-sector">${d.sector || '-'}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span class="stock-sector">${d.sector||'-'}</span>
+            ${plHtml}
+          </div>
         </div>
         <div class="stock-right">
-          <div class="stock-price ${cls}">${d.price || '-'}</div>
+          <div class="stock-price ${cls}">${d.price||'-'}</div>
           <div class="stock-change ${cls}">
-            <span class="change-dot" style="background:${up ? 'var(--up)' : 'var(--down)'}"></span>
+            <span class="change-dot" style="background:${up?'var(--up)':'var(--down)'}"></span>
             ${changeAbs} (${changePct})
           </div>
         </div>
@@ -1413,15 +1564,17 @@ function renderStocks() {
         <div class="metric">昨收 <span>${d.prev||'-'}</span></div>
         <div class="metric">本益比 <span>${d.pe||'-'}</span></div>
         <div class="metric">量 <span>${d.vol||'-'}</span></div>
-        ${plHtml}
+        ${marketVal ? `<div class="metric">市值 <span>${(marketVal/10000).toFixed(1)}萬</span></div>` : ''}
       </div>
       ${alertHtml}
       <div class="stock-detail" id="detail-${idx}">
-        <div class="detail-news">
+        ${detailGrid}
+        <div class="detail-news" style="margin-top:${cells.length?'4px':'14px'}">
           <div class="news-title">最新動態</div>
-          ${news || '<div style="font-size:11px;color:var(--muted)">暫無資料</div>'}
+          ${news || '<div style="font-size:var(--fs-xs);color:var(--muted)">暫無資料</div>'}
         </div>
-        ${s.note ? `<div style="margin-top:10px;font-size:11px;color:var(--muted)">📝 ${s.note}</div>` : ''}
+        ${s.note ? `<div style="margin-top:10px;font-size:var(--fs-xs);color:var(--muted)">📝 ${s.note}</div>` : ''}
+        <button class="edit-stock-btn" onclick="event.stopPropagation();openEditStock(${idx})">✏ 編輯此標的</button>
         <button class="ai-btn" id="aibtn-${idx}" onclick="event.stopPropagation();getAIAdvice(${idx})">
           ✦ AI 分析此標的
         </button>
@@ -1447,8 +1600,74 @@ function switchTab(tab) {
   if (tab === 'dca') renderDCA();
 }
 
-function openAddModal() { document.getElementById('addModal').classList.add('show'); }
+function openAddModal() {
+  document.getElementById('addModalTitle').textContent = '新增標的';
+  document.getElementById('addModalConfirm').textContent = '加入';
+  document.getElementById('editingStockIdx').value = '';
+  ['inputCode','inputCost','inputQty','inputShares','inputBuyDate','inputStopLoss','inputTarget','inputNote']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  setModalType('hold');
+  document.getElementById('addModal').classList.add('show');
+}
 function closeAddModal() { document.getElementById('addModal').classList.remove('show'); }
+
+function setModalType(type) {
+  document.getElementById('inputType').value = type;
+  document.getElementById('typeHold').classList.toggle('active', type === 'hold');
+  document.getElementById('typeWatch').classList.toggle('active', type === 'watch');
+  document.getElementById('holdFields').style.display = type === 'hold' ? 'block' : 'none';
+}
+
+function openEditStock(idx) {
+  const s = stocks[idx];
+  document.getElementById('addModalTitle').textContent = '編輯標的';
+  document.getElementById('addModalConfirm').textContent = '儲存';
+  document.getElementById('editingStockIdx').value = idx;
+  document.getElementById('inputCode').value      = s.code || '';
+  document.getElementById('inputCost').value      = s.cost || '';
+  document.getElementById('inputQty').value       = s.qty || '';
+  document.getElementById('inputShares').value    = s.shares || '';
+  document.getElementById('inputBuyDate').value   = s.buyDate || '';
+  document.getElementById('inputStopLoss').value  = s.stopLoss || '';
+  document.getElementById('inputTarget').value    = s.target || '';
+  document.getElementById('inputNote').value      = s.note || '';
+  setModalType(s.type || 'hold');
+  document.getElementById('addModal').classList.add('show');
+}
+
+function addStock() {
+  const editIdx = document.getElementById('editingStockIdx').value;
+  const code     = document.getElementById('inputCode').value.trim().replace(/[^\d]/g,'') || document.getElementById('inputCode').value.trim();
+  const type     = document.getElementById('inputType').value;
+  const cost     = parseFloat(document.getElementById('inputCost').value) || null;
+  const qty      = parseInt(document.getElementById('inputQty').value) || 0;
+  const shares   = parseInt(document.getElementById('inputShares').value) || 0;
+  const buyDate  = document.getElementById('inputBuyDate').value || null;
+  const stopLoss = parseFloat(document.getElementById('inputStopLoss').value) || null;
+  const target   = parseFloat(document.getElementById('inputTarget').value) || null;
+  const note     = document.getElementById('inputNote').value.trim();
+  if (!code) return;
+
+  const entry = { code, type, cost, qty, shares, buyDate, stopLoss, target, note };
+
+  if (editIdx !== '') {
+    stocks[parseInt(editIdx)] = entry;
+    showToast('✅ 已更新標的');
+  } else {
+    if (stocks.find(s => s.code === code)) {
+      showToast('⚠️ 此代號已在清單中', 'var(--warn)');
+      return;
+    }
+    stocks.push(entry);
+    showToast('✅ 已新增標的');
+  }
+
+  closeAddModal();
+  localStorage.setItem('tstock_savedAt', Date.now());
+  saveToLocal();
+  renderStocks();
+  if (isCloudConfigured()) saveToCloud();
+}
 
 function addStock() {
   const code = document.getElementById('inputCode').value.trim();
@@ -1799,26 +2018,26 @@ function closeDcaModal() {
 }
 
 function saveDcaPlan() {
-  const code = document.getElementById('dcaCode').value.trim();
-  const day = parseInt(document.getElementById('dcaDay').value);
+  const code   = document.getElementById('dcaCode').value.trim();
+  const day    = parseInt(document.getElementById('dcaDay').value);
   const amount = parseInt(document.getElementById('dcaAmount').value);
-  const note = document.getElementById('dcaNote').value.trim();
+  const note   = document.getElementById('dcaNote').value.trim();
   if (!code || !amount) return;
-
-  // Try to resolve name from MOCK_STOCKS
   const cleanCode = code.replace(/\D/g,'') || code;
   const stockInfo = MOCK_STOCKS[cleanCode];
   const name = stockInfo ? stockInfo.name : code;
-
   const plan = { code: cleanCode, name, day, amount, note };
-
   if (editingDcaIdx !== null) {
     dcaPlans[editingDcaIdx] = plan;
   } else {
     dcaPlans.push(plan);
   }
   closeDcaModal();
+  localStorage.setItem('tstock_savedAt', Date.now());
+  saveToLocal();
   renderDCA();
+  showToast('✅ 定期定額已儲存');
+  if (isCloudConfigured()) saveToCloud();
 }
 
 // ─── EXPORT / IMPORT ─────────────────────────────────
@@ -2057,50 +2276,7 @@ async function loadFromCloud() {
   }
 }
 
-// ─── 覆寫 addStock / saveDcaPlan，新增後自動存雲端 ──
-
-// Patch addStock, quickAdd, saveDcaPlan to also save
-const _origAddStock = addStock;
-function addStock() {
-  const code = document.getElementById('inputCode').value.trim();
-  const type = document.getElementById('inputType').value;
-  const cost = parseFloat(document.getElementById('inputCost').value) || null;
-  const note = document.getElementById('inputNote').value.trim();
-  if (!code) return;
-  stocks.push({ code: code.replace(/[^\d]/g,'') || code, type, cost, note });
-  closeAddModal();
-  ['inputCode','inputCost','inputNote'].forEach(id => document.getElementById(id).value = '');
-  localStorage.setItem('tstock_savedAt', Date.now());
-  saveToLocal();
-  renderStocks();
-  showToast('✅ 已新增標的');
-  if (isCloudConfigured()) saveToCloud();
-}
-
-const _origSaveDca = saveDcaPlan;
-function saveDcaPlan() {
-  const code   = document.getElementById('dcaCode').value.trim();
-  const day    = parseInt(document.getElementById('dcaDay').value);
-  const amount = parseInt(document.getElementById('dcaAmount').value);
-  const note   = document.getElementById('dcaNote').value.trim();
-  if (!code || !amount) return;
-  const cleanCode = code.replace(/\D/g,'') || code;
-  const stockInfo = MOCK_STOCKS[cleanCode];
-  const name = stockInfo ? stockInfo.name : code;
-  const plan = { code: cleanCode, name, day, amount, note };
-  if (editingDcaIdx !== null) {
-    dcaPlans[editingDcaIdx] = plan;
-  } else {
-    dcaPlans.push(plan);
-  }
-  closeDcaModal();
-  localStorage.setItem('tstock_savedAt', Date.now());
-  saveToLocal();
-  renderDCA();
-  showToast('✅ 定期定額已儲存');
-  if (isCloudConfigured()) saveToCloud();
-}
-
+// ─── 覆寫 saveDcaPlan，新增後自動存雲端 ──
 // ─── 主題 & 字體控制 ─────────────────────────────────
 
 function toggleTheme() {
