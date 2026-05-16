@@ -70,7 +70,7 @@
     padding: 16px;
     font-size: var(--fs-sm);
     transition: background 0.25s, color 0.25s;
-    max-width: 680px;
+    max-width: 900px;
     margin: 0 auto;
   }
 
@@ -160,7 +160,7 @@
   /* Summary bar */
   .summary-bar {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 10px;
     margin-bottom: 16px;
   }
@@ -254,7 +254,7 @@
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: 14px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     overflow: hidden;
     transition: border-color 0.2s, box-shadow 0.2s;
     cursor: pointer;
@@ -883,7 +883,6 @@
   /* stock detail grid */
   .detail-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 8px;
     margin-top: 14px;
     margin-bottom: 4px;
@@ -919,11 +918,14 @@
     transition: all 0.2s;
   }
   .edit-stock-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── 響應式增強 ── */
+  .detail-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .empty-list { color: var(--muted); font-size: var(--fs-sm); padding: 10px 0; text-align: center; background: var(--surface2); border-radius: 10px; margin-bottom: 16px; }
 </style>
 </head>
 <body>
 
-<!-- 主題控制列 -->
 <div class="theme-bar">
   <div class="font-size-ctrl">
     <button class="fsbtn" id="fsSmBtn" onclick="setFont('sm')" title="小字">A</button>
@@ -949,7 +951,6 @@
   </div>
 </div>
 
-<!-- Toast notification -->
 <div id="toast" style="
   position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
   background:var(--surface); border:1.5px solid var(--accent); color:var(--accent);
@@ -958,7 +959,6 @@
   box-shadow: 0 6px 24px rgba(0,0,0,0.25);
 "></div>
 
-<!-- Summary bar -->
 <div class="summary-bar">
   <div class="summary-card">
     <div class="summary-label">持有標的</div>
@@ -982,7 +982,6 @@
   </div>
 </div>
 
-<!-- Tabs -->
 <div class="tabs">
   <button class="tab active" onclick="switchTab('portfolio')">💼 我的標的</button>
   <button class="tab" onclick="switchTab('dca')">📅 定期定額</button>
@@ -990,16 +989,19 @@
   <button class="tab" onclick="switchTab('suggest')">💡 AI 推薦</button>
 </div>
 
-<!-- Portfolio Tab -->
 <div id="tab-portfolio">
   <div class="section-header">
-    <div class="section-title">持有 & 追蹤</div>
+    <div class="section-title">💼 持有中標的</div>
     <button class="add-btn" onclick="openAddModal()">＋ 新增標的</button>
   </div>
-  <div id="stockList"></div>
+  <div id="holdList"></div>
+
+  <div class="section-header" style="margin-top: 24px;">
+    <div class="section-title">👁 觀察中名單</div>
+  </div>
+  <div id="watchList"></div>
 </div>
 
-<!-- DCA Tab -->
 <div id="tab-dca" style="display:none">
   <div class="dca-summary">
     <div>
@@ -1018,10 +1020,8 @@
   <div class="dca-yearly" id="dcaYearly"></div>
 </div>
 
-<!-- Market Tab -->
 <div id="tab-market" style="display:none">
 
-  <!-- 昨晚美股 -->
   <div class="market-section-label">🌙 昨晚美股收盤</div>
   <div class="market-overview" id="usMarketBox">
     <div class="market-row">
@@ -1068,7 +1068,6 @@
     </div>
   </div>
 
-  <!-- 昨晚美股 AI 快速解讀 -->
   <div id="usAIBox" style="margin-bottom:16px">
     <button class="ai-btn" onclick="getUSMarketRead(this)">
       ✦ AI 快讀：昨晚美股對今天台股的影響
@@ -1076,7 +1075,6 @@
     <div id="usAIResult" class="ai-result"></div>
   </div>
 
-  <!-- 今日台股 -->
   <div class="market-section-label" style="margin-top:4px">🇹🇼 今日台股</div>
   <div class="market-overview">
     <div class="market-row">
@@ -1116,7 +1114,6 @@
     </div>
   </div>
 
-  <!-- 今日台股 + 持倉整合分析 -->
   <div id="marketAIBox">
     <button class="ai-btn" onclick="getMarketAnalysis(this)">
       ✦ AI 整合分析：美股＋台股＋我的持倉今天怎麼看
@@ -1124,7 +1121,6 @@
     <div id="marketAIResult" class="ai-result"></div>
   </div>
 
-  <!-- 名詞小教室 -->
   <div class="glossary-box">
     <div class="glossary-title">📖 看不懂的名詞？點開看</div>
     <div id="glossaryList">
@@ -1152,7 +1148,6 @@
   </div>
 </div>
 
-<!-- Suggest Tab -->
 <div id="tab-suggest" style="display:none">
   <div class="section-header">
     <div class="section-title">AI 選股推薦</div>
@@ -1165,12 +1160,10 @@
   </div>
 </div>
 
-<!-- Add / Edit Modal -->
 <div class="modal-overlay" id="addModal">
   <div class="modal" style="max-width:420px">
     <div class="modal-title" id="addModalTitle">新增標的</div>
 
-    <!-- 類型切換 -->
     <div style="display:flex;gap:8px;margin-bottom:16px">
       <button class="type-toggle active" id="typeHold" onclick="setModalType('hold')">💼 持有</button>
       <button class="type-toggle" id="typeWatch" onclick="setModalType('watch')">👁 觀察</button>
@@ -1183,7 +1176,6 @@
       <input type="text" class="form-input" id="inputCode" placeholder="例：2330、0050">
     </div>
 
-    <!-- 持有專屬欄位 -->
     <div id="holdFields">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="form-row">
@@ -1222,12 +1214,12 @@
 
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeAddModal()">取消</button>
+      <button class="btn-cancel" id="btnDeleteStock" onclick="deleteStock()" style="display:none; color: var(--up); border-color: var(--up);">刪除</button>
       <button class="btn-confirm" id="addModalConfirm" onclick="addStock()">加入</button>
     </div>
   </div>
 </div>
 
-<!-- 雲端設定 Modal -->
 <div class="modal-overlay" id="cloudModal">
   <div class="modal">
     <div class="modal-title">☁️ 雲端同步設定</div>
@@ -1536,8 +1528,9 @@ function updateSummary() {
 }
 
 function renderStocks() {
-  const list = document.getElementById('stockList');
-  list.innerHTML = '';
+  let holdHtml = '';
+  let watchHtml = '';
+
   stocks.forEach((s, idx) => {
     const d = MOCK_STOCKS[s.code] || {};
     const up = (d.changePct || 0) >= 0;
@@ -1545,7 +1538,7 @@ function renderStocks() {
     const changeAbs = d.change ? (up ? `+${d.change}` : d.change) : '-';
     const changePct = d.changePct ? `${(up?'+':'')}${d.changePct.toFixed(2)}%` : '-';
 
-    // 計算總股數（張數×1000 + 零股）
+    // 計算總股數
     const totalShares = ((s.qty||0) * 1000) + (s.shares||0);
 
     // 損益計算
@@ -1558,10 +1551,8 @@ function renderStocks() {
       plHtml = `<span class="pl-pill ${plCls}">${plSign}${plPct.toFixed(2)}%</span>`;
     }
 
-    // 市值
+    // 市值與持有天數
     const marketVal = d.price && totalShares ? (d.price * totalShares) : null;
-
-    // 持有天數
     let daysHeld = null;
     if (s.buyDate) {
       daysHeld = Math.floor((Date.now() - new Date(s.buyDate).getTime()) / 86400000);
@@ -1581,7 +1572,7 @@ function renderStocks() {
     const news = (NEWS[s.code] || []).map(n =>
       `<div class="news-item"><span class="news-dot">•</span>${n}</div>`).join('');
 
-    // 詳細資訊格（只顯示有填的）
+    // 詳細資訊格
     const cells = [];
     if (s.cost)      cells.push(['均價', `${s.cost} 元`]);
     if (s.qty||s.shares) {
@@ -1603,7 +1594,7 @@ function renderStocks() {
           </div>`).join('')}
       </div>` : '';
 
-    list.innerHTML += `
+    const cardHtml = `
     <div class="stock-card" id="card-${idx}" onclick="toggleCard(${idx})">
       <div class="stock-main">
         <div class="stock-left">
@@ -1647,7 +1638,16 @@ function renderStocks() {
         <div class="ai-result" id="airesult-${idx}"></div>
       </div>
     </div>`;
+
+    if (s.type === 'hold') {
+      holdHtml += cardHtml;
+    } else {
+      watchHtml += cardHtml;
+    }
   });
+
+  document.getElementById('holdList').innerHTML = holdHtml || '<div class="empty-list">尚無持有標的</div>';
+  document.getElementById('watchList').innerHTML = watchHtml || '<div class="empty-list">尚無觀察標的</div>';
   updateSummary();
 }
 
@@ -1670,11 +1670,13 @@ function openAddModal() {
   document.getElementById('addModalTitle').textContent = '新增標的';
   document.getElementById('addModalConfirm').textContent = '加入';
   document.getElementById('editingStockIdx').value = '';
+  document.getElementById('btnDeleteStock').style.display = 'none'; // 新增時隱藏刪除鈕
   ['inputCode','inputCost','inputQty','inputShares','inputBuyDate','inputStopLoss','inputTarget','inputNote']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   setModalType('hold');
   document.getElementById('addModal').classList.add('show');
 }
+
 function closeAddModal() { document.getElementById('addModal').classList.remove('show'); }
 
 function setModalType(type) {
@@ -1689,6 +1691,7 @@ function openEditStock(idx) {
   document.getElementById('addModalTitle').textContent = '編輯標的';
   document.getElementById('addModalConfirm').textContent = '儲存';
   document.getElementById('editingStockIdx').value = idx;
+  document.getElementById('btnDeleteStock').style.display = 'block'; // 編輯時顯示刪除鈕
   document.getElementById('inputCode').value      = s.code || '';
   document.getElementById('inputCost').value      = s.cost || '';
   document.getElementById('inputQty').value       = s.qty || '';
@@ -1699,6 +1702,23 @@ function openEditStock(idx) {
   document.getElementById('inputNote').value      = s.note || '';
   setModalType(s.type || 'hold');
   document.getElementById('addModal').classList.add('show');
+}
+
+// 加入刪除函數
+function deleteStock() {
+  const idx = document.getElementById('editingStockIdx').value;
+  if (idx === '') return;
+  
+  const code = stocks[idx].code;
+  if (confirm(`確定要刪除標的 ${code} 嗎？`)) {
+    stocks.splice(parseInt(idx), 1); // 從陣列中移除
+    closeAddModal();
+    localStorage.setItem('tstock_savedAt', Date.now());
+    saveToLocal();
+    renderStocks();
+    showToast(`🗑 已刪除標的 ${code}`);
+    if (isCloudConfigured()) saveToCloud();
+  }
 }
 
 function addStock() {
@@ -1733,18 +1753,6 @@ function addStock() {
   saveToLocal();
   renderStocks();
   if (isCloudConfigured()) saveToCloud();
-}
-
-function addStock() {
-  const code = document.getElementById('inputCode').value.trim();
-  const type = document.getElementById('inputType').value;
-  const cost = parseFloat(document.getElementById('inputCost').value) || null;
-  const note = document.getElementById('inputNote').value.trim();
-  if (!code) return;
-  stocks.push({ code: code.replace(/[^\d]/g,'') || code, type, cost, note });
-  closeAddModal();
-  ['inputCode','inputCost','inputNote'].forEach(id => document.getElementById(id).value = '');
-  renderStocks();
 }
 
 function refreshAll() { renderStocks(); }
