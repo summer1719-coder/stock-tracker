@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-16T18:14:54.536Z",
+  "savedAt": "2026-05-16T18:17:03.836Z",
   "version": 1,
   "stocks": [
     {
@@ -13,8 +13,12 @@
       "code": "0050",
       "type": "hold",
       "cost": 68.96,
-      "note": "ETF定期定額",
-      "qty": 5105
+      "qty": 5,
+      "shares": 105,
+      "buyDate": "2024-02-15",
+      "stopLoss": null,
+      "target": null,
+      "note": "ETF定期定額"
     },
     {
       "code": "0056",
