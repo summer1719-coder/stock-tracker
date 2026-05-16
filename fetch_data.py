@@ -453,6 +453,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-```
-
-貼上並點擊綠色的 **`Commit changes`** 存檔後，再去 Actions 點一次 `Run workflow` 試試看吧！期待你的綠色勾勾！✅
