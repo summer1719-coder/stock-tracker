@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-16T18:22:20.719Z",
+  "savedAt": "2026-05-16T18:24:52.265Z",
   "version": 1,
   "stocks": [
     {
@@ -74,6 +74,17 @@
       "qty": 3,
       "shares": 886,
       "buyDate": "2026-04-17",
+      "stopLoss": null,
+      "target": null,
+      "note": ""
+    },
+    {
+      "code": "玉山金",
+      "type": "watch",
+      "cost": null,
+      "qty": 0,
+      "shares": 0,
+      "buyDate": null,
       "stopLoss": null,
       "target": null,
       "note": ""
