@@ -1323,6 +1323,8 @@ const FALLBACK_US = {
 let LIVE_STOCKS = { ...FALLBACK_STOCKS };
 let LIVE_US     = { ...FALLBACK_US };
 let LIVE_META   = { updatedAt: '備用資料', foreignBuy: 328, usdTwd: 30.42 };
+let LIVE_NEWS   = {};          // 真實新聞，從 data.json 載入後填入
+let LIVE_MARKET_NEWS = [];     // 大盤新聞
 
 // 從 data.json 載入真實資料
 async function loadDataJson() {
@@ -1331,21 +1333,43 @@ async function loadDataJson() {
     if (!res.ok) throw new Error('找不到 data.json');
     const d = await res.json();
 
-    // 股票資料
+    // 股票資料（收盤模式才有）
     if (d.stocks) {
       Object.entries(d.stocks).forEach(([code, info]) => {
         LIVE_STOCKS[code] = {
-          name      : info.name,
-          price     : info.price,
-          prev      : info.prev,
-          change    : info.change,
-          changePct : info.changePct,
-          vol       : info.vol || '-',
-          pe        : info.pe || '-',
-          sector    : FALLBACK_STOCKS[code]?.sector || '-',
+          name         : info.name,
+          price        : info.price,
+          prev         : info.prev,
+          high         : info.high,
+          low          : info.low,
+          change       : info.change,
+          changePct    : info.changePct,
+          vol          : info.vol || '-',
+          pe           : info.pe || '-',
+          dividendYield: info.dividendYield || null,
+          sector       : FALLBACK_STOCKS[code]?.sector || '-',
         };
       });
     }
+
+    // 真實新聞
+    if (d.stockNews) {
+      Object.entries(d.stockNews).forEach(([code, items]) => {
+        if (items && items.length) LIVE_NEWS[code] = items;
+      });
+    }
+
+    // 大盤新聞
+    if (d.twMarket?.marketNews) LIVE_MARKET_NEWS = d.twMarket.marketNews;
+
+    // 開盤預測（premarket 模式）
+    if (d.openingPreview) showOpeningBanner(d.openingPreview, d.premarketAt);
+
+    // 模式標記
+    const modeLabel = d.mode === 'premarket'
+      ? `☀️ 開盤前預覽　${d.premarketAt}`
+      : `📊 ${d.updatedAt} 收盤`;
+    document.getElementById('currentDate').textContent = modeLabel;
 
     // 美股
     if (d.usMarkets) LIVE_US = d.usMarkets;
@@ -1361,12 +1385,47 @@ async function loadDataJson() {
     document.getElementById('currentDate').textContent = `${d.updatedAt} 收盤`;
     updateUSMarketUI();
     renderStocks();
-    console.log('✅ data.json 載入成功', d.updatedAt);
+    console.log('✅ data.json 載入成功', d.updatedAt || d.premarketAt);
   } catch(e) {
     console.warn('⚠️ data.json 載入失敗，使用備用資料：', e.message);
     document.getElementById('currentDate').textContent = '示範資料（非即時）';
     renderStocks();
   }
+}
+
+function showOpeningBanner(preview, time) {
+  // 在頁面頂部插入開盤預測橫幅
+  const existing = document.getElementById('openingBanner');
+  if (existing) existing.remove();
+
+  const isUp = preview.score >= 1;
+  const isDown = preview.score <= -1;
+  const color = isUp ? 'var(--down)' : isDown ? 'var(--up)' : 'var(--warn)';
+  const bg    = isUp ? 'rgba(34,197,94,0.08)' : isDown ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)';
+  const border= isUp ? 'rgba(34,197,94,0.3)'  : isDown ? 'rgba(239,68,68,0.3)'  : 'rgba(245,158,11,0.3)';
+
+  const details = (preview.details || [])
+    .map(d => `<div style="padding:4px 0;border-bottom:1px solid ${border};font-size:var(--fs-xs);color:var(--muted)">• ${d}</div>`)
+    .join('');
+
+  const banner = document.createElement('div');
+  banner.id = 'openingBanner';
+  banner.style.cssText = `
+    background:${bg}; border:1.5px solid ${border};
+    border-radius:14px; padding:16px 18px; margin-bottom:16px;
+  `;
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:var(--fs-xs);color:var(--muted)">☀️ 今日開盤預測　${time||''}</div>
+      <div style="font-size:var(--fs-md);font-weight:700;color:${color}">${preview.outlook}</div>
+    </div>
+    <div style="font-size:var(--fs-sm);color:var(--text);margin-bottom:10px;line-height:1.6">${preview.summary}</div>
+    <div style="border-top:1px solid ${border};padding-top:8px">${details}</div>
+  `;
+
+  // 插在 summary bar 前面
+  const summaryBar = document.querySelector('.summary-bar');
+  if (summaryBar) summaryBar.before(banner);
 }
 
 function updateUSMarketUI() {
@@ -1417,16 +1476,22 @@ const MOCK_STOCKS = new Proxy({}, {
   get(_, code) { return LIVE_STOCKS[code]; }
 });
 
-const NEWS = {
-  '2330': ['2026年Q1營收7,266億元，年增34%（2026/04/17）','輝達訂單持續強勁，2nm量產進度超前（2026/05/10）','外資連續8日買超，累計逾15萬張（2026/05/15）'],
-  '0050': ['淨值95.40元，近月績效+8.3%（2026/05/15）','外資佈局台股，ETF資金持續流入（2026/05/12）'],
-  '0056': ['5月配息0.35元，殖利率約9.5%（2026/05/01）','成分股調整：新增AI電源概念股（2026/04/25）'],
-  '00878': ['本月息值0.28元，年化殖利率12%（2026/05/03）','ESG評分再提升，機構買盤增加（2026/05/10）'],
-  '3006': ['2026年4月合併營收46.34億元，年增349%（2026/05/10）','Q1財報：EPS 7.22元（2026/04/30）'],
-  '4533': ['Q1累計營收8.70億，稅前淨利4,673萬（2026/05/11）','研發主管異動：游建長接任研發處協理（2026/03/02）'],
-  '2454': ['Dimensity 9400銷量超預期，法說會展望樂觀（2026/05/08）','AI手機晶片出貨目標上修（2026/05/13）'],
-  '2317': ['2026年Q1EPS 2.35元，符合預期（2026/04/25）','鄭州廠自動化升級計畫啟動（2026/05/02）'],
+// 新聞：優先用真實資料，沒有才用靜態備用
+const FALLBACK_NEWS = {
+  '2330': ['Q1營收7,266億元，年增34%（2026/04/17）','輝達訂單強勁，2nm量產超前（2026/05/10）'],
+  '0050': ['淨值95.40元，近月績效+8.3%（2026/05/15）'],
+  '0056': ['5月配息0.35元，殖利率約9.5%（2026/05/01）'],
+  '00878': ['本月息值0.28元，年化殖利率12%（2026/05/03）'],
+  '00940': ['成分股調整，新增高殖利率標的（2026/04/20）'],
+  '3006': ['4月合併營收46.34億，年增349%（2026/05/10）','Q1 EPS 7.22元（2026/04/30）'],
+  '4533': ['Q1累計營收8.70億（2026/05/11）'],
 };
+
+const NEWS = new Proxy({}, {
+  get(_, code) {
+    return LIVE_NEWS[code]?.length ? LIVE_NEWS[code] : (FALLBACK_NEWS[code] || []);
+  }
+});
 
 let stocks = [
   { code:'2330', type:'hold', cost:1813.91, note:'長期核心持股', qty:121 },
@@ -1563,6 +1628,7 @@ function renderStocks() {
       <div class="stock-metrics">
         <div class="metric">昨收 <span>${d.prev||'-'}</span></div>
         <div class="metric">本益比 <span>${d.pe||'-'}</span></div>
+        ${d.dividendYield ? `<div class="metric">殖利率 <span>${d.dividendYield}%</span></div>` : ''}
         <div class="metric">量 <span>${d.vol||'-'}</span></div>
         ${marketVal ? `<div class="metric">市值 <span>${(marketVal/10000).toFixed(1)}萬</span></div>` : ''}
       </div>
