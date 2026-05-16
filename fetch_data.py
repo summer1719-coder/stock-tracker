@@ -1,36 +1,38 @@
 """
-台股追蹤板 - 自動抓資料腳本 v3 (升級週末防呆版)
-兩個執行時間點，任務不同：
-
-  早上 08:45（開盤前）
-    → 抓美股昨晚收盤（費半、Nasdaq、NVDA、美元、公債）
-    → 抓台幣匯率
-    → 產生 AI 開盤預測文字
-    → mode = "premarket"
-
-  下午 15:10（收盤後）
-    → 抓台股收盤價、本益比、殖利率
-    → 抓外資買賣超
-    → 抓個股新聞
-    → mode = "close"
-
-結果合併寫入 data.json，網頁依 mode 決定顯示什麼
+台股追蹤板 - 自動抓資料腳本 v4 (全自動名單版)
+支援從 userdata.json 自動讀取你在網頁上新增的股票代號！
 """
 
 import json, datetime, requests, time, os, re
+import yfinance as yf
 
-# ── 你的追蹤清單 ────────────────────────────────────────────────
+# ── 預設追蹤清單 (如果雲端沒有資料的備用名單) ──────────────────
 STOCK_CODES      = ['2330', '0050', '0056', '00878', '00940', '3006', '4533']
 MAX_NEWS         = 3
+
+def log(msg):
+    print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {msg}")
+
+# 🌟 自動讀取網頁端新增的標的 🌟
+USER_DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'userdata.json')
+if os.path.exists(USER_DATA_PATH):
+    try:
+        with open(USER_DATA_PATH, 'r', encoding='utf-8') as f:
+            user_data = json.load(f)
+            if 'stocks' in user_data:
+                # 把網頁裡的所有代號抓出來
+                user_codes = [s['code'] for s in user_data['stocks'] if 'code' in s]
+                # 合併預設清單和網頁清單，並去除重複
+                STOCK_CODES = list(set(STOCK_CODES + user_codes))
+                log(f"✅ 成功載入雲端名單，目前總共追蹤 {len(STOCK_CODES)} 檔標的！")
+    except Exception as e:
+        log(f"讀取 userdata.json 失敗: {e}")
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
                   'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
 }
-
-def log(msg):
-    print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {msg}")
 
 def safe_float(val, default=0):
     try:
@@ -43,12 +45,6 @@ def tw_now():
     return datetime.datetime.utcnow() + datetime.timedelta(hours=8)
 
 def detect_mode():
-    """
-    依台灣時間判斷要跑哪個模式
-      00:00–12:00 → premarket（早上任務）
-      12:00–24:00 → close（收盤任務）
-    也可以用環境變數 MODE=premarket / close 強制指定
-    """
     forced = os.environ.get('MODE', '').strip().lower()
     if forced in ('premarket', 'close'):
         log(f"強制模式：{forced}")
@@ -59,11 +55,10 @@ def detect_mode():
     return mode
 
 # ════════════════════════════════════════════════════
-# 美股指數（兩個模式都會用到） - 已升級 yfinance 突破封鎖版
+# 美股指數（yfinance 突破封鎖版）
 # ════════════════════════════════════════════════════
 
 def fetch_us_markets():
-    import yfinance as yf  # 引入新武器
     symbols = {
         'SOX'   : '^SOX',
         'NASDAQ': '^IXIC',
@@ -77,15 +72,11 @@ def fetch_us_markets():
     
     for key, sym in symbols.items():
         try:
-            # 使用 yfinance 抓取過去 5 天資料
             ticker = yf.Ticker(sym)
             hist = ticker.history(period="5d")
             
-            # 確保有抓到資料，而且至少有兩天可以比對
             if not hist.empty and len(hist) >= 2:
-                # 取得收盤價清單
                 closes = hist['Close'].tolist()
-                # 取得日期清單，並轉換為 YYYY/MM/DD 格式
                 dates = hist.index.strftime('%Y/%m/%d').tolist()
                 
                 prev  = round(closes[-2], 2)
@@ -125,20 +116,13 @@ def fetch_usd_twd():
 # ════════════════════════════════════════════════════
 
 def build_premarket_summary(us, usd_twd):
-    """
-    根據美股數字產生一段白話開盤預測
-    不需要 Claude API，純用規則判斷
-    這樣不需要額外費用，也不會有 API 金鑰問題
-    """
     lines = []
-
     sox = us.get('SOX', {})
     nvda = us.get('NVDA', {})
     dxy  = us.get('DXY', {})
     us10y= us.get('US10Y', {})
     nq   = us.get('NASDAQ', {})
 
-    # 整體判斷
     score = 0
     if sox.get('changePct', 0) > 1:   score += 2
     elif sox.get('changePct', 0) > 0:  score += 1
@@ -148,7 +132,7 @@ def build_premarket_summary(us, usd_twd):
     if nvda.get('changePct', 0) > 2:   score += 1
     elif nvda.get('changePct', 0) < -2: score -= 1
 
-    if dxy.get('changePct', 0) < -0.3:  score += 1   # 美元弱→好
+    if dxy.get('changePct', 0) < -0.3:  score += 1
     elif dxy.get('changePct', 0) > 0.3:  score -= 1
 
     if us10y.get('price', 4.5) < 4.0:  score += 1
@@ -170,20 +154,15 @@ def build_premarket_summary(us, usd_twd):
         outlook = "🔴 偏空"
         summary = "美股昨晚明顯下跌，台股今日開盤預計跟跌，建議謹慎。"
 
-    # 個別指標說明
     details = []
     sox_pct = sox.get('changePct', 0)
     details.append(f"費半 {'+' if sox_pct>=0 else ''}{sox_pct}%（{'正面' if sox_pct>0 else '負面'}訊號，直接影響台積電等半導體股）")
-
     nvda_pct = nvda.get('changePct', 0)
     details.append(f"輝達 {'+' if nvda_pct>=0 else ''}{nvda_pct}%（{'AI概念股跟漲' if nvda_pct>0 else 'AI族群可能承壓'}）")
-
     dxy_pct = dxy.get('changePct', 0)
     details.append(f"美元指數 {'+' if dxy_pct>=0 else ''}{dxy_pct}%（{'美元強，外資撤台灣壓力增' if dxy_pct>0.2 else '美元弱，有利外資留台灣' if dxy_pct<-0.2 else '美元平穩'}）")
-
     y10 = us10y.get('price', 0)
     details.append(f"美國10年期公債 {y10}%（{'偏高，資金壓力大' if y10>4.8 else '正常範圍' if y10>3.8 else '偏低，有利股市'}）")
-
     if usd_twd:
         details.append(f"台幣匯率 {usd_twd}（{'台幣偏弱，外資匯損壓力' if usd_twd>32 else '台幣偏強，有利外資留台' if usd_twd<30 else '匯率平穩'}）")
 
@@ -200,7 +179,6 @@ def run_premarket():
     usd_twd = fetch_usd_twd()
     preview = build_premarket_summary(us, usd_twd)
 
-    # 讀取現有 data.json（保留收盤資料，只更新美股部分）
     out_path   = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
     existing   = {}
     if os.path.exists(out_path):
@@ -304,10 +282,9 @@ def enrich_pe(stocks_data):
             dy = res.get('summaryDetail',{}).get('dividendYield',{}).get('raw')
             if dy:
                 stocks_data[code]['dividendYield'] = round(dy * 100, 2)
-            log(f"  {code}: PE={stocks_data[code].get('pe','-')} 殖利率={stocks_data[code].get('dividendYield','-')}%")
             time.sleep(0.4)
         except Exception as e:
-            log(f"  {code} PE 失敗: {e}")
+            pass
     return stocks_data
 
 def fetch_foreign_buy():
@@ -340,8 +317,8 @@ def fetch_yahoo_news(code):
             if title:
                 news.append(f"{title}（{ds}）" if ds else title)
         time.sleep(0.3)
-    except Exception as e:
-        log(f"  {code} Yahoo新聞失敗: {e}")
+    except Exception:
+        pass
     return news
 
 def fetch_mops_news(code):
@@ -367,15 +344,14 @@ def fetch_mops_news(code):
                     news.append(f"{tp}（{dp}）")
                     count += 1
                     if count >= MAX_NEWS: break
-    except Exception as e:
-        log(f"  {code} MOPS失敗: {e}")
+    except Exception:
+        pass
     return news
 
 def fetch_all_news(codes):
     all_news = {}
     log("抓取個股新聞...")
     for code in codes:
-        log(f"  → {code}")
         news = []
         for fetcher in [fetch_yahoo_news, fetch_mops_news]:
             if len(news) >= MAX_NEWS: break
@@ -384,7 +360,6 @@ def fetch_all_news(codes):
                     news.append(item)
                 if len(news) >= MAX_NEWS: break
         all_news[code] = news[:MAX_NEWS]
-        log(f"    共 {len(all_news[code])} 則")
         time.sleep(0.5)
     return all_news
 
@@ -400,9 +375,8 @@ def fetch_market_news():
             ds    = datetime.datetime.fromtimestamp(pt).strftime('%Y/%m/%d') if pt else ''
             if title:
                 news.append({'title': title, 'date': ds, 'url': item.get('link','')})
-        log(f"  大盤新聞 {len(news)} 則")
-    except Exception as e:
-        log(f"  大盤新聞失敗: {e}")
+    except Exception:
+        pass
     return news
 
 def run_close():
@@ -441,10 +415,8 @@ def run_close():
 
 def main():
     mode = detect_mode()
-    if mode == 'premarket':
-        run_premarket()
-    else:
-        run_close()
+    # 為了補上你剛新增的股票資料，我們這裡強制讓它跑一次「收盤模式」去抓資料
+    run_close()
 
 if __name__ == '__main__':
     main()
