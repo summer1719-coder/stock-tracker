@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-16T18:19:54.753Z",
+  "savedAt": "2026-05-16T18:21:16.052Z",
   "version": 1,
   "stocks": [
     {
@@ -55,6 +55,17 @@
       "code": "4533",
       "type": "watch",
       "note": "注意本益比偏高"
+    },
+    {
+      "code": "00919",
+      "type": "hold",
+      "cost": 21.44,
+      "qty": 0,
+      "shares": 16,
+      "buyDate": "2025-11-10",
+      "stopLoss": null,
+      "target": null,
+      "note": ""
     }
   ],
   "dcaPlans": [
