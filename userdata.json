@@ -1,13 +1,17 @@
 {
-  "savedAt": "2026-05-16T18:17:03.836Z",
+  "savedAt": "2026-05-16T18:17:58.353Z",
   "version": 1,
   "stocks": [
     {
       "code": "2330",
       "type": "hold",
       "cost": 1813.91,
-      "note": "長期核心持股",
-      "qty": 121
+      "qty": 0,
+      "shares": 121,
+      "buyDate": "2025-10-08",
+      "stopLoss": null,
+      "target": null,
+      "note": "長期核心持股"
     },
     {
       "code": "0050",
