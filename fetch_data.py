@@ -1,5 +1,5 @@
 """
-台股追蹤板 - 自動抓資料腳本 v5 (全自動名單 + 精準欄位校正版)
+台股追蹤板 - 自動抓資料腳本 v6 (全自動名單 + 預測保留終極版)
 """
 
 import json, datetime, requests, time, os, re
@@ -179,13 +179,11 @@ def fetch_tw_stocks(codes):
                 code = row[0].strip()
                 if code in codes:
                     try:
-                        # 修正！正確的 STOCK_DAY_ALL 欄位：
-                        # 0:代號, 1:名稱, 2:成交股數, 3:成交金額, 4:開盤, 5:最高, 6:最低, 7:收盤, 8:漲跌價差
                         close = safe_float(row[7])
                         chg   = safe_float(str(row[8]).replace('X', '').replace('+', ''))
                         prev  = round(close - chg, 2)
                         pct   = round((chg / prev * 100), 2) if prev else 0
-                        vol_sheets = int(safe_float(row[2]) / 1000) # 股數轉張數
+                        vol_sheets = int(safe_float(row[2]) / 1000)
                         
                         result[code] = {
                             'name': row[1].strip(), 'price': close, 'prev': prev,
@@ -210,12 +208,11 @@ def fetch_tw_stocks(codes):
                 code = row[0].strip()
                 if code in otc_codes:
                     try:
-                        # 0:代號, 1:名稱, 2:收盤, 3:漲跌, 4:開盤, 5:最高, 6:最低, 7:成交股數
                         close = safe_float(row[2])
                         chg   = safe_float(str(row[3]).replace('X', '').replace('+', ''))
                         prev  = round(close - chg, 2)
                         pct   = round((chg / prev * 100), 2) if prev else 0
-                        vol_sheets = int(safe_float(row[7]) / 1000) # 股數轉張數
+                        vol_sheets = int(safe_float(row[7]) / 1000)
                         
                         result[code] = {
                             'name': row[1].strip(), 'price': close, 'prev': prev,
@@ -333,6 +330,15 @@ def run_close():
     market_news = fetch_market_news()
 
     now = tw_now()
+    
+    # ✨ 關鍵修復：先讀取既有的檔案，把早上的「預測橫幅」抓出來保留！
+    out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
+    existing = {}
+    if os.path.exists(out_path):
+        try:
+            with open(out_path, 'r', encoding='utf-8') as f: existing = json.load(f)
+        except: pass
+
     output = {
         "mode"       : "close",
         "updatedAt"  : now.strftime('%Y/%m/%d %H:%M'),
@@ -345,9 +351,12 @@ def run_close():
             "marketNews" : market_news,
         },
         "stockNews"  : stock_news,
+        
+        # ✨ 將早上的預測資料寫回去，不再被覆蓋掉！
+        "openingPreview": existing.get("openingPreview"),
+        "premarketAt": existing.get("premarketAt")
     }
 
-    out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
     with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
@@ -357,9 +366,12 @@ def run_close():
 # ── 主程式 ──────────────────────────────────────────────────────
 
 def main():
+    # 恢復日夜自動切換的功能！
     mode = detect_mode()
-    # 因為剛更新程式碼，我們強制讓它跑「收盤模式」去重抓一次正確的數字來蓋掉錯誤資料
-    run_close()
+    if mode == 'premarket':
+        run_premarket()
+    else:
+        run_close()
 
 if __name__ == '__main__':
     main()
