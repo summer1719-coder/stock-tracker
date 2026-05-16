@@ -59,10 +59,11 @@ def detect_mode():
     return mode
 
 # ════════════════════════════════════════════════════
-# 美股指數（兩個模式都會用到） - 已升級週末防呆機制
+# 美股指數（兩個模式都會用到） - 已升級 yfinance 突破封鎖版
 # ════════════════════════════════════════════════════
 
 def fetch_us_markets():
+    import yfinance as yf  # 引入新武器
     symbols = {
         'SOX'   : '^SOX',
         'NASDAQ': '^IXIC',
@@ -72,32 +73,27 @@ def fetch_us_markets():
         'US10Y' : '^TNX',
     }
     result = {}
-    log("抓取美股指數...")
+    log("使用 yfinance 抓取美股指數...")
     
-    # 遇到週末或週一早上，我們拉長查詢區間到 5d，確保能抓到上週五的真實收盤資料
-    range_str = "5d" 
-
     for key, sym in symbols.items():
         try:
-            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range={range_str}"
-            r   = requests.get(url, timeout=10, headers=HEADERS)
-            d   = r.json()
+            # 使用 yfinance 抓取過去 5 天資料
+            ticker = yf.Ticker(sym)
+            hist = ticker.history(period="5d")
             
-            timestamps = d['chart']['result'][0]['timestamp']
-            closes = d['chart']['result'][0]['indicators']['quote'][0]['close']
-            
-            # 過濾掉 None 的資料，並把 timestamp 和 close 綁在一起
-            valid_data = [(ts, c) for ts, c in zip(timestamps, closes) if c is not None]
-            
-            if len(valid_data) >= 2:
-                # 永遠取最後兩筆有效的收盤價
-                prev  = round(valid_data[-2][1], 2)
-                close = round(valid_data[-1][1], 2)
+            # 確保有抓到資料，而且至少有兩天可以比對
+            if not hist.empty and len(hist) >= 2:
+                # 取得收盤價清單
+                closes = hist['Close'].tolist()
+                # 取得日期清單，並轉換為 YYYY/MM/DD 格式
+                dates = hist.index.strftime('%Y/%m/%d').tolist()
+                
+                prev  = round(closes[-2], 2)
+                close = round(closes[-1], 2)
                 chg   = round(close - prev, 2)
                 pct   = round((chg / prev * 100), 2) if prev else 0
                 
-                # 轉換最後一筆資料的時間，確認是哪一天的收盤
-                last_trade_date = datetime.datetime.fromtimestamp(valid_data[-1][0]).strftime('%Y/%m/%d')
+                last_trade_date = dates[-1]
                 
                 result[key] = {
                     'price': close, 
@@ -107,7 +103,6 @@ def fetch_us_markets():
                     'last_trade': last_trade_date
                 }
                 log(f"  {key}: {close} ({'+' if pct>=0 else ''}{pct}%) - 最後交易日: {last_trade_date}")
-            time.sleep(0.4)
         except Exception as e:
             log(f"  {key} 失敗: {e}")
             
