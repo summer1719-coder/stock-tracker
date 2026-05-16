@@ -1,5 +1,10 @@
+沒問題！你說得完全正確，Python 對縮排（空白鍵）非常嚴格，與其在那邊剪剪貼貼找位置，**「全部刪掉、直接貼上完整版」絕對是最安全、最不容易出錯的做法！**
+
+請直接把你的 `fetch_data.py` 裡面的內容**全部清空**，然後完整複製下面這整段程式碼貼上去：
+
+```python
 """
-台股追蹤板 - 自動抓資料腳本 v3
+台股追蹤板 - 自動抓資料腳本 v3 (升級週末防呆版)
 兩個執行時間點，任務不同：
 
   早上 08:45（開盤前）
@@ -59,7 +64,7 @@ def detect_mode():
     return mode
 
 # ════════════════════════════════════════════════════
-# 美股指數（兩個模式都會用到）
+# 美股指數（兩個模式都會用到） - 已升級週末防呆機制
 # ════════════════════════════════════════════════════
 
 def fetch_us_markets():
@@ -73,22 +78,44 @@ def fetch_us_markets():
     }
     result = {}
     log("抓取美股指數...")
+    
+    # 遇到週末或週一早上，我們拉長查詢區間到 5d，確保能抓到上週五的真實收盤資料
+    range_str = "5d" 
+
     for key, sym in symbols.items():
         try:
-            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range=2d"
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range={range_str}"
             r   = requests.get(url, timeout=10, headers=HEADERS)
             d   = r.json()
-            closes = [c for c in d['chart']['result'][0]['indicators']['quote'][0]['close'] if c is not None]
-            if len(closes) >= 2:
-                prev  = round(closes[-2], 2)
-                close = round(closes[-1], 2)
+            
+            timestamps = d['chart']['result'][0]['timestamp']
+            closes = d['chart']['result'][0]['indicators']['quote'][0]['close']
+            
+            # 過濾掉 None 的資料，並把 timestamp 和 close 綁在一起
+            valid_data = [(ts, c) for ts, c in zip(timestamps, closes) if c is not None]
+            
+            if len(valid_data) >= 2:
+                # 永遠取最後兩筆有效的收盤價
+                prev  = round(valid_data[-2][1], 2)
+                close = round(valid_data[-1][1], 2)
                 chg   = round(close - prev, 2)
                 pct   = round((chg / prev * 100), 2) if prev else 0
-                result[key] = {'price': close, 'prev': prev, 'change': chg, 'changePct': pct}
-                log(f"  {key}: {close} ({'+' if pct>=0 else ''}{pct}%)")
+                
+                # 轉換最後一筆資料的時間，確認是哪一天的收盤
+                last_trade_date = datetime.datetime.fromtimestamp(valid_data[-1][0]).strftime('%Y/%m/%d')
+                
+                result[key] = {
+                    'price': close, 
+                    'prev': prev, 
+                    'change': chg, 
+                    'changePct': pct,
+                    'last_trade': last_trade_date
+                }
+                log(f"  {key}: {close} ({'+' if pct>=0 else ''}{pct}%) - 最後交易日: {last_trade_date}")
             time.sleep(0.4)
         except Exception as e:
             log(f"  {key} 失敗: {e}")
+            
     return result
 
 def fetch_usd_twd():
@@ -431,3 +458,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+```
+
+貼上並點擊綠色的 **`Commit changes`** 存檔後，再去 Actions 點一次 `Run workflow` 試試看吧！期待你的綠色勾勾！✅
