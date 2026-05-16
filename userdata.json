@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-16T13:49:49.795Z",
+  "savedAt": "2026-05-16T18:14:54.536Z",
   "version": 1,
   "stocks": [
     {
@@ -39,12 +39,6 @@
       "code": "4533",
       "type": "watch",
       "note": "注意本益比偏高"
-    },
-    {
-      "code": "台積電",
-      "type": "hold",
-      "cost": 1778,
-      "note": ""
     }
   ],
   "dcaPlans": [
