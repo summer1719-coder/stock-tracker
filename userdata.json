@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-16T18:19:13.935Z",
+  "savedAt": "2026-05-16T18:19:54.753Z",
   "version": 1,
   "stocks": [
     {
@@ -39,8 +39,12 @@
       "code": "00878",
       "type": "hold",
       "cost": 22.04,
-      "note": "高股息存股",
-      "qty": 8016
+      "qty": 8,
+      "shares": 16,
+      "buyDate": "2024-06-11",
+      "stopLoss": null,
+      "target": null,
+      "note": "高股息存股"
     },
     {
       "code": "3006",
