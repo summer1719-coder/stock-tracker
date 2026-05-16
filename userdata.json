@@ -1,0 +1,81 @@
+{
+  "savedAt": "2026-05-16T13:43:35.662Z",
+  "version": 1,
+  "stocks": [
+    {
+      "code": "2330",
+      "type": "hold",
+      "cost": 1813.91,
+      "note": "長期核心持股",
+      "qty": 121
+    },
+    {
+      "code": "0050",
+      "type": "hold",
+      "cost": 68.96,
+      "note": "ETF定期定額",
+      "qty": 5105
+    },
+    {
+      "code": "0056",
+      "type": "hold",
+      "cost": 37.02,
+      "note": "配息再投入",
+      "qty": 3003
+    },
+    {
+      "code": "00878",
+      "type": "hold",
+      "cost": 22.04,
+      "note": "高股息存股",
+      "qty": 8016
+    },
+    {
+      "code": "3006",
+      "type": "watch",
+      "note": "AI Server IC，觀察突破"
+    },
+    {
+      "code": "4533",
+      "type": "watch",
+      "note": "注意本益比偏高"
+    }
+  ],
+  "dcaPlans": [
+    {
+      "code": "0050",
+      "name": "元大台灣50",
+      "day": 22,
+      "amount": 5000,
+      "note": "核心ETF"
+    },
+    {
+      "code": "00878",
+      "name": "國泰永續高股息",
+      "day": 22,
+      "amount": 5000,
+      "note": "高股息存股"
+    },
+    {
+      "code": "2330",
+      "name": "台積電",
+      "day": 10,
+      "amount": 5000,
+      "note": "半導體龍頭"
+    },
+    {
+      "code": "00940",
+      "name": "元大台灣價值高息",
+      "day": 10,
+      "amount": 10000,
+      "note": "價值高息ETF"
+    },
+    {
+      "code": "0056",
+      "name": "元大高股息",
+      "day": 22,
+      "amount": 5000,
+      "note": "月配息ETF"
+    }
+  ]
+}
