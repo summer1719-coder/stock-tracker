@@ -1,0 +1,42 @@
+# .github/workflows/update.yml
+# 每天下午 3:10 自動執行（台灣時間，UTC+8，所以 UTC 07:10）
+# 也可以手動點「Run workflow」觸發
+
+name: 每日股價更新
+
+on:
+  schedule:
+    - cron: '10 7 * * 1-5'   # 週一到週五 UTC 07:10 = 台灣 15:10
+  workflow_dispatch:           # 允許手動觸發
+
+jobs:
+  fetch-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 把 repo 的程式碼下載到執行環境
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. 安裝 Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3. 安裝需要的套件
+      - name: Install dependencies
+        run: pip install requests
+
+      # 4. 執行抓資料腳本
+      - name: Fetch stock data
+        run: python fetch_data.py
+
+      # 5. 把產生的 data.json 推回 repo
+      - name: Commit and push data.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --staged --quiet || git commit -m "📊 自動更新股價 $(date +'%Y-%m-%d %H:%M')"
+          git push
