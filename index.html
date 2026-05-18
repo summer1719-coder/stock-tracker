@@ -843,3 +843,1598 @@
     background: var(--surface2);
   }
   .glossary-item.open .glossary-a { display: block; }
+
+  /* type toggle in modal */
+  .type-toggle {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .type-toggle.active {
+    border-color: var(--accent2);
+    background: rgba(59,130,246,0.15);
+    color: var(--accent2);
+  }
+
+  /* profit pill on stock card */
+  .pl-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .pl-pill.up { background: rgba(239,68,68,0.12); color: var(--up); }
+  .pl-pill.down { background: rgba(34,197,94,0.12); color: var(--down); }
+  html.light .pl-pill.up { background: rgba(220,38,38,0.10); }
+  html.light .pl-pill.down { background: rgba(22,163,74,0.10); }
+
+  /* stock detail grid */
+  .detail-grid {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+    margin-bottom: 4px;
+  }
+  .detail-cell {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .detail-cell-label {
+    font-size: var(--fs-xs);
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .detail-cell-val {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .edit-stock-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+  .edit-stock-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── 響應式增強 ── */
+  .detail-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .empty-list { color: var(--muted); font-size: var(--fs-sm); padding: 10px 0; text-align: center; background: var(--surface2); border-radius: 10px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="theme-bar">
+  <div class="font-size-ctrl">
+    <button class="fsbtn" id="fsSmBtn" onclick="setFont('sm')" title="小字">A</button>
+    <button class="fsbtn active" id="fsMdBtn" onclick="setFont('md')" title="中字" style="font-size:19px">A</button>
+    <button class="fsbtn" id="fsLgBtn" onclick="setFont('lg')" title="大字" style="font-size:23px">A</button>
+  </div>
+  <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">
+    <span id="themeIcon">☀️</span><span id="themeLabel">淺色模式</span>
+  </button>
+</div>
+
+<div class="header">
+  <div>
+    <div class="header-title">📈 台股追蹤板</div>
+    <div class="header-date" id="currentDate">載入中...</div>
+  </div>
+  <div class="header-actions">
+    <button class="refresh-btn" onclick="exportData()" title="匯出資料">⬇ 匯出</button>
+    <button class="refresh-btn" onclick="document.getElementById('importInput').click()" title="匯入資料">⬆ 匯入</button>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="refresh-btn" id="cloudBtn" onclick="openCloudModal()" title="雲端同步">☁️</button>
+    <button class="refresh-btn" onclick="refreshAll()">↻ 重整</button>
+  </div>
+</div>
+
+<div id="toast" style="
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
+  background:var(--surface); border:1.5px solid var(--accent); color:var(--accent);
+  padding:12px 22px; border-radius:30px; font-size:var(--fs-sm); z-index:999;
+  transition: transform 0.3s ease, opacity 0.3s ease; opacity:0; white-space:nowrap;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+"></div>
+
+<div class="summary-bar">
+  <div class="summary-card">
+    <div class="summary-label">持有標的</div>
+    <div class="summary-value accent" id="holdCount">-</div>
+    <div class="summary-sub" style="color:var(--muted)">檔</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">今日損益</div>
+    <div class="summary-value" id="todayPL">-</div>
+    <div class="summary-sub" id="todayPLAmt" style="color:var(--muted)">元</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">總損益</div>
+    <div class="summary-value" id="totalPL">-</div>
+    <div class="summary-sub" id="totalPLAmt" style="color:var(--muted)">元</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">異常訊號</div>
+    <div class="summary-value" style="color:var(--warn)" id="alertCount">-</div>
+    <div class="summary-sub" style="color:var(--muted)">個</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('portfolio')">💼 我的標的</button>
+  <button class="tab" onclick="switchTab('dca')">📅 定期定額</button>
+  <button class="tab" onclick="switchTab('market')">🌐 大盤</button>
+  <button class="tab" onclick="switchTab('suggest')">💡 AI 推薦</button>
+</div>
+
+<div id="tab-portfolio">
+  <div class="section-header">
+    <div class="section-title">💼 持有中標的</div>
+    <button class="add-btn" onclick="openAddModal()">＋ 新增標的</button>
+  </div>
+  <div id="holdList"></div>
+
+  <div class="section-header" style="margin-top: 24px;">
+    <div class="section-title">👁 觀察中名單</div>
+  </div>
+  <div id="watchList"></div>
+</div>
+
+<div id="tab-dca" style="display:none">
+  <div class="dca-summary">
+    <div>
+      <div class="dca-total-label">每月總扣款金額</div>
+      <div class="dca-total-amount" id="dcaTotalAmt">45,000</div>
+      <div class="dca-total-sub">TWD（不含手續費）</div>
+    </div>
+    <div class="dca-batches" id="dcaBatches"></div>
+  </div>
+  <div id="dcaCountdown"></div>
+  <div class="section-header">
+    <div class="section-title">扣款契約</div>
+    <button class="add-btn" onclick="openDcaModal()">＋ 新增</button>
+  </div>
+  <div id="dcaList"></div>
+  <div class="dca-yearly" id="dcaYearly"></div>
+</div>
+
+<div id="tab-market" style="display:none">
+
+  <div class="market-section-label">🌙 昨晚美股收盤</div>
+  <div class="market-overview" id="usMarketBox">
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">費城半導體 SOX</span>
+        <span class="market-hint">台股科技股最直接風向球</span>
+      </div>
+      <span class="market-val up">5,218 <span class="badge badge-up">▲ 2.10%</span></span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">納斯達克 Nasdaq</span>
+        <span class="market-hint">科技股整體情緒</span>
+      </div>
+      <span class="market-val up">18,742 <span class="badge badge-up">▲ 1.45%</span></span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">標普 500 S&P</span>
+        <span class="market-hint">美國大盤整體</span>
+      </div>
+      <span class="market-val up">5,308 <span class="badge badge-up">▲ 0.98%</span></span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">輝達 NVDA</span>
+        <span class="market-hint">AI族群領頭羊，台灣AI供應鏈全跟</span>
+      </div>
+      <span class="market-val up">$1,148 <span class="badge badge-up">▲ 3.22%</span></span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">美元指數 DXY</span>
+        <span class="market-hint">強→外資可能撤台灣，弱→資金流入</span>
+      </div>
+      <span class="market-val down">104.2 <span class="badge badge-down">▼ 0.31%</span></span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">美國10年期公債</span>
+        <span class="market-hint">高→資金離開股市，低→資金進股市</span>
+      </div>
+      <span class="market-val" style="color:var(--warn)">4.42% <span class="badge" style="background:rgba(245,158,11,0.15);color:var(--warn)">▲ 0.03%</span></span>
+    </div>
+  </div>
+
+  <div id="usAIBox" style="margin-bottom:16px">
+    <button class="ai-btn" onclick="getUSMarketRead(this)">
+      ✦ AI 快讀：昨晚美股對今天台股的影響
+    </button>
+    <div id="usAIResult" class="ai-result"></div>
+  </div>
+
+  <div class="market-section-label" style="margin-top:4px">🇹🇼 今日台股</div>
+  <div class="market-overview">
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">加權指數 TAIEX</span>
+        <span class="market-hint">台股大盤整體</span>
+      </div>
+      <span class="market-val up">22,841 <span class="badge badge-up">▲ 1.23%</span></span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">OTC 櫃買指數</span>
+        <span class="market-hint">中小型股為主</span>
+      </div>
+      <span class="market-val up">248.3 <span class="badge badge-up">▲ 0.87%</span></span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">外資買超</span>
+        <span class="market-hint">連買代表法人看好台股</span>
+      </div>
+      <span class="market-val up" id="foreignBuyVal">+328億</span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">投信買超</span>
+        <span class="market-hint">國內基金動向</span>
+      </div>
+      <span class="market-val up">+42億</span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">美元／台幣</span>
+        <span class="market-hint">台幣升值→外資傾向留台灣</span>
+      </div>
+      <span class="market-val down"><span id="usdTwdVal">30.42</span> <span class="badge badge-down">▼ 0.15%</span></span>
+    </div>
+  </div>
+
+  <div id="marketAIBox">
+    <button class="ai-btn" onclick="getMarketAnalysis(this)">
+      ✦ AI 整合分析：美股＋台股＋我的持倉今天怎麼看
+    </button>
+    <div id="marketAIResult" class="ai-result"></div>
+  </div>
+
+  <div class="glossary-box">
+    <div class="glossary-title">📖 看不懂的名詞？點開看</div>
+    <div id="glossaryList">
+      <div class="glossary-item" onclick="toggleGlossary(this)">
+        <div class="glossary-q">費城半導體指數（SOX）是什麼？<span class="glossary-arrow">›</span></div>
+        <div class="glossary-a">追蹤美國30家半導體公司的指數，包含英特爾、輝達、AMD等。台積電的主要客戶都在裡面，所以SOX漲，通常台積電隔天會跟著漲。是台股科技族群最重要的參考指標。</div>
+      </div>
+      <div class="glossary-item" onclick="toggleGlossary(this)">
+        <div class="glossary-q">為什麼輝達（NVDA）這麼重要？<span class="glossary-arrow">›</span></div>
+        <div class="glossary-a">輝達是全球AI晶片龍頭，它的GPU幾乎全部由台積電代工。輝達股價好→代表AI需求強→台積電訂單多→台積電股價好。你持有的台積電和0050，和輝達高度連動。</div>
+      </div>
+      <div class="glossary-item" onclick="toggleGlossary(this)">
+        <div class="glossary-q">美元指數（DXY）跟我有什麼關係？<span class="glossary-arrow">›</span></div>
+        <div class="glossary-a">外資在台灣賺的是台幣。美元強的時候，台幣相對弱，外資把錢換回美元會有匯損，所以傾向撤出台股。美元弱→台幣強→外資更願意留在台灣→對台股正面。</div>
+      </div>
+      <div class="glossary-item" onclick="toggleGlossary(this)">
+        <div class="glossary-q">美國公債殖利率高有什麼問題？<span class="glossary-arrow">›</span></div>
+        <div class="glossary-a">公債殖利率可以理解成「無風險的利率」。當公債給4%，投資人就會想：我為什麼要冒險買股票？所以公債殖利率高→資金流出股市→股票下跌壓力大。低於3.5%對股市通常是好事。</div>
+      </div>
+      <div class="glossary-item" onclick="toggleGlossary(this)">
+        <div class="glossary-q">外資買超和投信買超哪個重要？<span class="glossary-arrow">›</span></div>
+        <div class="glossary-a">外資的錢多很多，影響力更大。外資連續買超通常是強烈正訊號。投信（國內基金）也值得看，尤其月底前投信會護盤讓績效好看，稱為「作帳行情」。兩個都買超是最好的訊號。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-suggest" style="display:none">
+  <div class="section-header">
+    <div class="section-title">AI 選股推薦</div>
+    <button class="refresh-btn" onclick="loadSuggestions()">重新推薦</button>
+  </div>
+  <div id="suggestList">
+    <button class="ai-btn" onclick="loadSuggestions()">
+      ✦ 根據我的持倉，推薦值得關注的標的
+    </button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-title" id="addModalTitle">新增標的</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="type-toggle active" id="typeHold" onclick="setModalType('hold')">💼 持有</button>
+      <button class="type-toggle" id="typeWatch" onclick="setModalType('watch')">👁 觀察</button>
+    </div>
+    <input type="hidden" id="inputType" value="hold">
+    <input type="hidden" id="editingStockIdx" value="">
+
+    <div class="form-row">
+      <label class="form-label">股票代號</label>
+      <input type="text" class="form-input" id="inputCode" placeholder="例：2330、0050">
+    </div>
+
+    <div id="holdFields">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-row">
+          <label class="form-label">均價（元）</label>
+          <input type="number" class="form-input" id="inputCost" placeholder="例：1813.91" step="0.01">
+        </div>
+        <div class="form-row">
+          <label class="form-label">持有張數</label>
+          <input type="number" class="form-input" id="inputQty" placeholder="例：5" min="0" step="1">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-row">
+          <label class="form-label">持有股數（非整張）</label>
+          <input type="number" class="form-input" id="inputShares" placeholder="例：500" min="0">
+        </div>
+        <div class="form-row">
+          <label class="form-label">首次買入日期</label>
+          <input type="date" class="form-input" id="inputBuyDate">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">停損價（選填）</label>
+        <input type="number" class="form-input" id="inputStopLoss" placeholder="跌到這個價位發出警示">
+      </div>
+      <div class="form-row">
+        <label class="form-label">目標價（選填）</label>
+        <input type="number" class="form-input" id="inputTarget" placeholder="漲到這個價位提醒考慮賣出">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">備註</label>
+      <input type="text" class="form-input" id="inputNote" placeholder="例：長期持有、等KD低檔">
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeAddModal()">取消</button>
+      <button class="btn-cancel" id="btnDeleteStock" onclick="deleteStock()" style="display:none; color: var(--up); border-color: var(--up);">刪除</button>
+      <button class="btn-confirm" id="addModalConfirm" onclick="addStock()">加入</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cloudModal">
+  <div class="modal">
+    <div class="modal-title">☁️ 雲端同步設定</div>
+    <div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:14px;line-height:1.7;">
+      設定後，新增的標的會自動存到你的 GitHub，任何裝置打開都能讀到。
+    </div>
+    <div class="form-row">
+      <label class="form-label">GitHub 帳號名稱</label>
+      <input type="text" class="form-input" id="ghOwner" placeholder="例：john123">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Repository 名稱</label>
+      <input type="text" class="form-input" id="ghRepo" placeholder="例：stock-tracker">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Personal Access Token
+        <a href="https://github.com/settings/tokens/new?scopes=repo&description=stock-tracker" target="_blank"
+           style="color:var(--accent2);font-size:var(--fs-xs);margin-left:6px;">→ 點這裡產生</a>
+      </label>
+      <input type="password" class="form-input" id="ghToken" placeholder="ghp_xxxxxxxxxx">
+      <div style="font-size:var(--fs-xs);color:var(--muted);margin-top:5px;">
+        ⚠️ Token 只存在你的瀏覽器，不會上傳到任何地方
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeCloudModal()">取消</button>
+      <button class="btn-confirm" onclick="saveCloudSettings()">儲存設定</button>
+    </div>
+  </div>
+</div>
+
+<div class="dca-modal-overlay" id="dcaModal">
+  <div class="modal">
+    <div class="modal-title" id="dcaModalTitle">新增定期定額</div>
+    <div class="form-row">
+      <label class="form-label">股票代號 / 名稱</label>
+      <input type="text" class="form-input" id="dcaCode" placeholder="例：0050、2330">
+    </div>
+    <div class="form-row">
+      <label class="form-label">每月扣款日</label>
+      <select class="form-input" id="dcaDay">
+        <option value="1">1 日</option>
+        <option value="5">5 日</option>
+        <option value="10" selected>10 日</option>
+        <option value="15">15 日</option>
+        <option value="20">20 日</option>
+        <option value="22">22 日</option>
+        <option value="25">25 日</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">申購金額（新台幣）</label>
+      <input type="number" class="form-input" id="dcaAmount" placeholder="例：5000">
+    </div>
+    <div class="form-row">
+      <label class="form-label">備註</label>
+      <input type="text" class="form-input" id="dcaNote" placeholder="選填">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeDcaModal()">取消</button>
+      <button class="btn-confirm" onclick="saveDcaPlan()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────
+// 股價資料：從 data.json 載入（GitHub Actions 每日更新）
+// 本地測試時若無 data.json 則使用備用假資料
+// ─────────────────────────────────────────────────────
+
+const FALLBACK_STOCKS = {
+  '2330': { name:'台積電', price:2265, change:+55, changePct:+2.49, sector:'半導體', pe:24.1, vol:'45,321張', prev:2210 },
+  '0050': { name:'元大台灣50', price:95.4, change:+1.85, changePct:+1.98, sector:'ETF', pe:'-', vol:'12,018張', prev:93.55 },
+  '0056': { name:'元大高股息', price:44.45, change:+0.55, changePct:+1.25, sector:'ETF', pe:'-', vol:'8,234張', prev:43.9 },
+  '00878': { name:'國泰永續高股息', price:27.9, change:+0.3, changePct:+1.09, sector:'ETF', pe:'-', vol:'6,112張', prev:27.6 },
+  '00940': { name:'元大台灣價值高息', price:10.95, change:+0.1, changePct:+0.92, sector:'ETF', pe:'-', vol:'9,234張', prev:10.85 },
+  '3006': { name:'晶豪科', price:251, change:+13, changePct:+5.46, sector:'半導體', pe:28.3, vol:'41,691張', prev:238 },
+  '4533': { name:'協易機', price:32.2, change:+1.55, changePct:+5.06, sector:'機械', pe:1610, vol:'5,920張', prev:30.65 },
+};
+
+const FALLBACK_US = {
+  SOX   : { price:5218, change:108, changePct:2.10 },
+  NASDAQ: { price:18742, change:268, changePct:1.45 },
+  SP500 : { price:5308, change:51.5, changePct:0.98 },
+  NVDA  : { price:1148, change:35.8, changePct:3.22 },
+  DXY   : { price:104.2, change:-0.32, changePct:-0.31 },
+  US10Y : { price:4.42, change:0.03, changePct:0.68 },
+};
+
+let LIVE_STOCKS = { ...FALLBACK_STOCKS };
+let LIVE_US     = { ...FALLBACK_US };
+let LIVE_META   = { updatedAt: '備用資料', foreignBuy: 328, usdTwd: 30.42 };
+let LIVE_NEWS   = {};
+let LIVE_MARKET_NEWS = [];
+
+async function loadDataJson() {
+  try {
+    const res = await fetch('data.json?t=' + Date.now());
+    if (!res.ok) throw new Error('找不到 data.json');
+    const d = await res.json();
+
+    if (d.stocks) {
+      Object.entries(d.stocks).forEach(([code, info]) => {
+        LIVE_STOCKS[code] = {
+          name         : info.name,
+          price        : info.price,
+          prev         : info.prev,
+          high         : info.high,
+          low          : info.low,
+          change       : info.change,
+          changePct    : info.changePct,
+          vol          : info.vol || '-',
+          pe           : info.pe || '-',
+          dividendYield: info.dividendYield || null,
+          sector       : FALLBACK_STOCKS[code]?.sector || '-',
+        };
+      });
+    }
+
+    if (d.stockNews) {
+      Object.entries(d.stockNews).forEach(([code, items]) => {
+        if (items && items.length) LIVE_NEWS[code] = items;
+      });
+    }
+
+    if (d.twMarket && d.twMarket.marketNews) LIVE_MARKET_NEWS = d.twMarket.marketNews;
+    if (d.usMarkets) LIVE_US = d.usMarkets;
+
+    if (d.twMarket) {
+      LIVE_META.foreignBuy = d.twMarket.foreignBuy;
+      LIVE_META.usdTwd     = d.twMarket.usdTwd;
+    }
+    LIVE_META.updatedAt = d.updatedAt || d.premarketAt || '未知';
+
+    if (d.openingPreview) showOpeningBanner(d.openingPreview, d.premarketAt);
+
+    const modeLabel = d.mode === 'premarket'
+      ? `☀️ 開盤前預覽　${d.premarketAt || ''}`
+      : `📊 ${d.updatedAt || ''} 收盤`;
+    document.getElementById('currentDate').textContent = modeLabel;
+
+    updateUSMarketUI();
+    renderStocks();
+    console.log('✅ data.json 載入成功', d.updatedAt || d.premarketAt);
+  } catch(e) {
+    console.warn('⚠️ data.json 載入失敗，使用備用資料：', e.message);
+    document.getElementById('currentDate').textContent = '示範資料（非即時）';
+    renderStocks();
+  }
+}
+
+function showOpeningBanner(preview, time) {
+  const existing = document.getElementById('openingBanner');
+  if (existing) existing.remove();
+
+  const isUp = preview.score >= 1;
+  const isDown = preview.score <= -1;
+  const color = isUp ? 'var(--down)' : isDown ? 'var(--up)' : 'var(--warn)';
+  const bg    = isUp ? 'rgba(34,197,94,0.08)' : isDown ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)';
+  const border= isUp ? 'rgba(34,197,94,0.3)'  : isDown ? 'rgba(239,68,68,0.3)'  : 'rgba(245,158,11,0.3)';
+
+  const details = (preview.details || [])
+    .map(d => `<div style="padding:4px 0;border-bottom:1px solid ${border};font-size:var(--fs-xs);color:var(--muted)">• ${d}</div>`)
+    .join('');
+
+  const banner = document.createElement('div');
+  banner.id = 'openingBanner';
+  banner.style.cssText = `
+    background:${bg}; border:1.5px solid ${border};
+    border-radius:14px; padding:16px 18px; margin-bottom:16px;
+  `;
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:var(--fs-xs);color:var(--muted)">☀️ 今日開盤預測　${time||''}</div>
+      <div style="font-size:var(--fs-md);font-weight:700;color:${color}">${preview.outlook}</div>
+    </div>
+    <div style="font-size:var(--fs-sm);color:var(--text);margin-bottom:10px;line-height:1.6">${preview.summary}</div>
+    <div style="border-top:1px solid ${border};padding-top:8px">${details}</div>
+  `;
+
+  const summaryBar = document.querySelector('.summary-bar');
+  if (summaryBar) summaryBar.before(banner);
+}
+
+function updateUSMarketUI() {
+  const us = LIVE_US;
+  const meta = LIVE_META;
+  const box = document.getElementById('usMarketBox');
+  if (!box) return;
+
+  const fmt = (key, label, hint, isRate=false) => {
+    const d = us[key];
+    if (!d) return '';
+    const up = d.changePct >= 0;
+    const cls = up ? 'up' : 'down';
+    const badgeCls = up ? 'badge-up' : 'badge-down';
+    const arrow = up ? '▲' : '▼';
+    const val = isRate ? `${d.price}%` : d.price.toLocaleString();
+    return `
+      <div class="market-row">
+        <div class="market-name-wrap">
+          <span class="market-name">${label}</span>
+          <span class="market-hint">${hint}</span>
+        </div>
+        <span class="market-val ${cls}">${val} <span class="badge ${badgeCls}">${arrow} ${Math.abs(d.changePct).toFixed(2)}%</span></span>
+      </div>`;
+  };
+
+  box.innerHTML =
+    fmt('SOX',    '費城半導體 SOX',  '台股科技股最直接風向球') +
+    fmt('NASDAQ', '納斯達克 Nasdaq', '科技股整體情緒') +
+    fmt('SP500',  '標普 500 S&P',    '美國大盤整體') +
+    fmt('NVDA',   '輝達 NVDA',       'AI族群領頭羊，台灣AI供應鏈全跟') +
+    fmt('DXY',    '美元指數 DXY',    '強→外資可能撤台灣，弱→資金流入') +
+    fmt('US10Y',  '美國10年期公債',  '高→資金離開股市，低→資金進股市', true);
+
+  const fEl = document.getElementById('foreignBuyVal');
+  if (fEl && meta.foreignBuy !== null) {
+    const up = meta.foreignBuy >= 0;
+    fEl.innerHTML = `<span class="${up?'up':'down'}">${up?'+':''}${meta.foreignBuy}億</span>`;
+  }
+  const fxEl = document.getElementById('usdTwdVal');
+  if (fxEl && meta.usdTwd) fxEl.textContent = meta.usdTwd;
+}
+
+const MOCK_STOCKS = new Proxy({}, {
+  get(_, code) { return LIVE_STOCKS[code]; }
+});
+
+const FALLBACK_NEWS = {
+  '2330': ['Q1營收7,266億元，年增34%（2026/04/17）','輝達訂單強勁，2nm量產超前（2026/05/10）'],
+  '0050': ['淨值95.40元，近月績效+8.3%（2026/05/15）'],
+  '0056': ['5月配息0.35元，殖利率約9.5%（2026/05/01）'],
+  '00878': ['本月息值0.28元，年化殖利率12%（2026/05/03）'],
+  '00940': ['成分股調整，新增高殖利率標的（2026/04/20）'],
+  '3006': ['4月合併營收46.34億，年增349%（2026/05/10）','Q1 EPS 7.22元（2026/04/30）'],
+  '4533': ['Q1累計營收8.70億（2026/05/11）'],
+};
+
+const NEWS = new Proxy({}, {
+  get(_, code) {
+    return (LIVE_NEWS[code] && LIVE_NEWS[code].length) ? LIVE_NEWS[code] : (FALLBACK_NEWS[code] || []);
+  }
+});
+
+let stocks = [
+  { code:'2330',  type:'hold', cost:1813.91, qty:0,  shares:121, buyDate:'2025-10-08', stopLoss:null, target:null, note:'長期核心持股' },
+  { code:'0050',  type:'hold', cost:68.96,   qty:5,  shares:105, buyDate:'2024-02-15', stopLoss:null, target:null, note:'ETF定期定額' },
+  { code:'0056',  type:'hold', cost:37.02,   qty:3,  shares:3,   buyDate:'2025-08-15', stopLoss:null, target:null, note:'配息再投入' },
+  { code:'00878', type:'hold', cost:22.04,   qty:8,  shares:16,  buyDate:'2024-06-11', stopLoss:null, target:null, note:'高股息存股' },
+  { code:'00940', type:'hold', cost:10.51,   qty:3,  shares:886, buyDate:'2026-04-17', stopLoss:null, target:null, note:'' },
+  { code:'3006',  type:'watch', note:'AI Server IC，觀察突破' },
+  { code:'4533',  type:'watch', note:'注意本益比偏高' },
+];
+
+function updateSummary() {
+  const hold = stocks.filter(s => s.type === 'hold').length;
+  document.getElementById('holdCount').textContent = hold;
+
+  let totalPL = 0, totalPLPct = 0, totalCost = 0;
+  let todayPL = 0;
+  let alerts  = 0;
+
+  stocks.forEach(s => {
+    const d = MOCK_STOCKS[s.code];
+    if (!d || s.type !== 'hold') return;
+    const shares = ((s.qty||0) * 1000) + (s.shares||0);
+    if (!shares || !s.cost) return;
+
+    // 總損益
+    const cost    = s.cost * shares;
+    const current = d.price * shares;
+    totalCost += cost;
+    totalPL   += (current - cost);
+
+    // 今日損益
+    if (d.prev) todayPL += (d.price - d.prev) * shares;
+
+    // 警示
+    if (Math.abs(d.changePct||0) > 4.5) alerts++;
+    if (typeof d.pe === 'number' && d.pe > 500) alerts++;
+    if (s.stopLoss && d.price <= s.stopLoss) alerts++;
+    if (s.target && d.price >= s.target) alerts++;
+  });
+
+  const todayCls = todayPL >= 0 ? 'up' : 'down';
+  const todaySign = todayPL >= 0 ? '+' : '';
+  document.getElementById('todayPL').textContent = `${todaySign}${Math.round(todayPL).toLocaleString()}`;
+  document.getElementById('todayPL').className = `summary-value ${todayCls}`;
+  document.getElementById('todayPLAmt').textContent = '元（今日）';
+  document.getElementById('todayPLAmt').className   = `summary-sub ${todayCls}`;
+
+  if (totalCost > 0) {
+    totalPLPct = (totalPL / totalCost * 100);
+    const cls  = totalPL >= 0 ? 'up' : 'down';
+    const sign = totalPL >= 0 ? '+' : '';
+    document.getElementById('totalPL').textContent  = `${sign}${totalPLPct.toFixed(2)}%`;
+    document.getElementById('totalPL').className    = `summary-value ${cls}`;
+    document.getElementById('totalPLAmt').textContent = `${sign}${Math.round(totalPL).toLocaleString()} 元`;
+    document.getElementById('totalPLAmt').className  = `summary-sub ${cls}`;
+  } else {
+    document.getElementById('totalPL').textContent = '-';
+    document.getElementById('totalPLAmt').textContent = '元';
+  }
+
+  document.getElementById('alertCount').textContent = alerts;
+}
+
+function renderStocks() {
+  let holdHtml = '';
+  let watchHtml = '';
+
+  stocks.forEach((s, idx) => {
+    const d = MOCK_STOCKS[s.code] || {};
+    const up = (d.changePct || 0) >= 0;
+    const cls = up ? 'up' : 'down';
+    const changeAbs = d.change ? (up ? `+${d.change}` : d.change) : '-';
+    const changePct = d.changePct ? `${(up?'+':'')}${d.changePct.toFixed(2)}%` : '-';
+
+    const totalShares = ((s.qty||0) * 1000) + (s.shares||0);
+
+    let plHtml = '', plPct = 0, plAmt = 0;
+    if (s.type === 'hold' && s.cost && d.price) {
+      plPct = ((d.price - s.cost) / s.cost * 100);
+      plAmt = (d.price - s.cost) * totalShares;
+      const plCls = plPct >= 0 ? 'up' : 'down';
+      const plSign = plPct >= 0 ? '+' : '';
+      plHtml = `<span class="pl-pill ${plCls}">${plSign}${plPct.toFixed(2)}%</span>`;
+    }
+
+    const marketVal = d.price && totalShares ? (d.price * totalShares) : null;
+    let daysHeld = null;
+    if (s.buyDate) {
+      daysHeld = Math.floor((Date.now() - new Date(s.buyDate).getTime()) / 86400000);
+    }
+
+    let alertHtml = '';
+    if (Math.abs(d.changePct||0) > 4.5)
+      alertHtml += `<div class="stock-alert">⚡ 今日${up?'漲':'跌'}幅超過 4.5%，注意${up?'追高風險':'止損時機'}</div>`;
+    if (typeof d.pe === 'number' && d.pe > 500)
+      alertHtml += `<div class="stock-alert">⚠️ 本益比 ${d.pe} 偏高，獲利尚未反映股價</div>`;
+    if (s.stopLoss && d.price && d.price <= s.stopLoss)
+      alertHtml += `<div class="stock-alert">🔴 已跌破停損價 ${s.stopLoss}，請評估是否停損</div>`;
+    if (s.target && d.price && d.price >= s.target)
+      alertHtml += `<div class="stock-alert">🎯 已達目標價 ${s.target}，可考慮獲利了結</div>`;
+
+    const news = (NEWS[s.code] || []).map(n =>
+      `<div class="news-item"><span class="news-dot">•</span>${n}</div>`).join('');
+
+    let hlBar = '';
+    if (d.high && d.low && d.price) {
+      const range = d.high - d.low;
+      const pos   = range > 0 ? ((d.price - d.low) / range * 100).toFixed(0) : 50;
+      hlBar = `
+        <div style="padding:0 18px 12px">
+          <div style="display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px">
+            <span>低 ${d.low}</span>
+            <span style="color:var(--text);font-weight:600">現 ${d.price}</span>
+            <span>高 ${d.high}</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;position:relative">
+            <div style="position:absolute;left:0;top:0;height:100%;width:${pos}%;background:linear-gradient(90deg,var(--down),var(--up));border-radius:3px;transition:width 0.5s"></div>
+            <div style="position:absolute;top:-3px;left:calc(${pos}% - 5px);width:10px;height:10px;border-radius:50%;background:var(--text);border:2px solid var(--surface)"></div>
+          </div>
+        </div>`;
+    }
+
+    let todayPlHtml = '';
+    if (s.type === 'hold' && d.price && d.prev && totalShares) {
+      const todayAmt = (d.price - d.prev) * totalShares;
+      const todayCls = todayAmt >= 0 ? 'up' : 'down';
+      todayPlHtml = `<div class="metric">今日損益 <span class="${todayCls}">${todayAmt>=0?'+':''}${Math.round(todayAmt).toLocaleString()}元</span></div>`;
+    }
+
+    const cells = [];
+    if (s.cost)      cells.push(['均價', `${s.cost} 元`]);
+    if (s.qty||s.shares) {
+      const label = s.qty ? `${s.qty} 張${s.shares?` + ${s.shares}股`:''}` : `${s.shares} 股`;
+      cells.push(['持有', label]);
+    }
+    if (marketVal)   cells.push(['市值', `${Math.round(marketVal).toLocaleString()} 元`]);
+    if (plAmt)       cells.push(['損益金額', `${plAmt >= 0 ? '+' : ''}${Math.round(plAmt).toLocaleString()} 元`]);
+    if (daysHeld !== null) cells.push(['持有天數', `${daysHeld} 天`]);
+    if (s.stopLoss)  cells.push(['停損價', `${s.stopLoss} 元`]);
+    if (s.target)    cells.push(['目標價', `${s.target} 元`]);
+
+    const detailGrid = cells.length ? `
+      <div class="detail-grid">
+        ${cells.map(([label, val]) => `
+          <div class="detail-cell">
+            <div class="detail-cell-label">${label}</div>
+            <div class="detail-cell-val" style="${label==='損益金額'?(plAmt>=0?'color:var(--up)':'color:var(--down)'):''}">${val}</div>
+          </div>`).join('')}
+      </div>` : '';
+
+    const cardHtml = `
+    <div class="stock-card" id="card-${idx}" onclick="toggleCard(${idx})">
+      <div class="stock-main">
+        <div class="stock-left">
+          <div class="stock-name-row">
+            <span class="stock-name">${d.name || s.code}</span>
+            <span class="stock-code">${s.code}</span>
+            <span class="stock-tag ${s.type==='hold'?'tag-hold':'tag-watch'}">${s.type==='hold'?'持有':'觀察'}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span class="stock-sector">${d.sector||'-'}</span>
+            ${plHtml}
+          </div>
+        </div>
+        <div class="stock-right">
+          <div class="stock-price ${cls}">${d.price||'-'}</div>
+          <div class="stock-change ${cls}">
+            <span class="change-dot" style="background:${up?'var(--up)':'var(--down)'}"></span>
+            ${changeAbs} (${changePct})
+          </div>
+        </div>
+      </div>
+      <div class="stock-metrics">
+        <div class="metric">昨收 <span>${d.prev||'-'}</span></div>
+        <div class="metric">本益比 <span>${d.pe||'-'}</span></div>
+        ${d.dividendYield ? `<div class="metric">殖利率 <span>${d.dividendYield}%</span></div>` : ''}
+        <div class="metric">量 <span>${d.vol||'-'}</span></div>
+        ${marketVal ? `<div class="metric">市值 <span>${(marketVal/10000).toFixed(1)}萬</span></div>` : ''}
+        ${todayPlHtml}
+      </div>
+      ${hlBar}
+      ${alertHtml}
+      <div class="stock-detail" id="detail-${idx}">
+        ${detailGrid}
+        <div class="detail-news" style="margin-top:${cells.length?'4px':'14px'}">
+          <div class="news-title">最新動態</div>
+          ${news || '<div style="font-size:var(--fs-xs);color:var(--muted)">暫無資料</div>'}
+        </div>
+        ${s.note ? `<div style="margin-top:10px;font-size:var(--fs-xs);color:var(--muted)">📝 ${s.note}</div>` : ''}
+        <button class="edit-stock-btn" onclick="event.stopPropagation();openEditStock(${idx})">✏ 編輯此標的</button>
+        <button class="ai-btn" id="aibtn-${idx}" onclick="event.stopPropagation();getAIAdvice(${idx})">
+          ✦ AI 分析此標的
+        </button>
+        <div class="ai-result" id="airesult-${idx}"></div>
+      </div>
+    </div>`;
+
+    if (s.type === 'hold') {
+      holdHtml += cardHtml;
+    } else {
+      watchHtml += cardHtml;
+    }
+  });
+
+  document.getElementById('holdList').innerHTML = holdHtml || '<div class="empty-list">尚無持有標的</div>';
+  document.getElementById('watchList').innerHTML = watchHtml || '<div class="empty-list">尚無觀察標的</div>';
+  updateSummary();
+}
+
+function toggleCard(idx) {
+  const card = document.getElementById(`card-${idx}`);
+  card.classList.toggle('expanded');
+}
+
+function switchTab(tab) {
+  ['portfolio','dca','market','suggest'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', ['portfolio','dca','market','suggest'][i] === tab);
+  });
+  if (tab === 'dca') renderDCA();
+}
+
+function openAddModal() {
+  document.getElementById('addModalTitle').textContent = '新增標的';
+  document.getElementById('addModalConfirm').textContent = '加入';
+  document.getElementById('editingStockIdx').value = '';
+  document.getElementById('btnDeleteStock').style.display = 'none';
+  ['inputCode','inputCost','inputQty','inputShares','inputBuyDate','inputStopLoss','inputTarget','inputNote']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  setModalType('hold');
+  document.getElementById('addModal').classList.add('show');
+}
+
+function closeAddModal() { document.getElementById('addModal').classList.remove('show'); }
+
+function setModalType(type) {
+  document.getElementById('inputType').value = type;
+  document.getElementById('typeHold').classList.toggle('active', type === 'hold');
+  document.getElementById('typeWatch').classList.toggle('active', type === 'watch');
+  document.getElementById('holdFields').style.display = type === 'hold' ? 'block' : 'none';
+}
+
+function openEditStock(idx) {
+  const s = stocks[idx];
+  document.getElementById('addModalTitle').textContent = '編輯標的';
+  document.getElementById('addModalConfirm').textContent = '儲存';
+  document.getElementById('editingStockIdx').value = idx;
+  document.getElementById('btnDeleteStock').style.display = 'block';
+  document.getElementById('inputCode').value      = s.code || '';
+  document.getElementById('inputCost').value      = s.cost || '';
+  document.getElementById('inputQty').value       = s.qty || '';
+  document.getElementById('inputShares').value    = s.shares || '';
+  document.getElementById('inputBuyDate').value   = s.buyDate || '';
+  document.getElementById('inputStopLoss').value  = s.stopLoss || '';
+  document.getElementById('inputTarget').value    = s.target || '';
+  document.getElementById('inputNote').value      = s.note || '';
+  setModalType(s.type || 'hold');
+  document.getElementById('addModal').classList.add('show');
+}
+
+function deleteStock() {
+  const idx = document.getElementById('editingStockIdx').value;
+  if (idx === '') return;
+  
+  const code = stocks[idx].code;
+  if (confirm(`確定要刪除標的 ${code} 嗎？`)) {
+    stocks.splice(parseInt(idx), 1);
+    closeAddModal();
+    localStorage.setItem('tstock_savedAt', Date.now());
+    saveToLocal();
+    renderStocks();
+    showToast(`🗑 已刪除標的 ${code}`);
+    if (isCloudConfigured()) saveToCloud();
+  }
+}
+
+function addStock() {
+  const editIdx = document.getElementById('editingStockIdx').value;
+  const code     = document.getElementById('inputCode').value.trim().replace(/[^\d]/g,'') || document.getElementById('inputCode').value.trim();
+  const type     = document.getElementById('inputType').value;
+  const cost     = parseFloat(document.getElementById('inputCost').value) || null;
+  const qty      = parseInt(document.getElementById('inputQty').value) || 0;
+  const shares   = parseInt(document.getElementById('inputShares').value) || 0;
+  const buyDate  = document.getElementById('inputBuyDate').value || null;
+  const stopLoss = parseFloat(document.getElementById('inputStopLoss').value) || null;
+  const target   = parseFloat(document.getElementById('inputTarget').value) || null;
+  const note     = document.getElementById('inputNote').value.trim();
+  if (!code) return;
+
+  const entry = { code, type, cost, qty, shares, buyDate, stopLoss, target, note };
+
+  if (editIdx !== '') {
+    stocks[parseInt(editIdx)] = entry;
+    showToast('✅ 已更新標的');
+  } else {
+    if (stocks.find(s => s.code === code)) {
+      showToast('⚠️ 此代號已在清單中', 'var(--warn)');
+      return;
+    }
+    stocks.push(entry);
+    showToast('✅ 已新增標的');
+  }
+
+  closeAddModal();
+  localStorage.setItem('tstock_savedAt', Date.now());
+  saveToLocal();
+  renderStocks();
+  if (isCloudConfigured()) saveToCloud();
+}
+
+function refreshAll() { renderStocks(); }
+
+async function getAIAdvice(idx) {
+  const s = stocks[idx];
+  const d = MOCK_STOCKS[s.code] || {};
+  const news = (NEWS[s.code] || []).join('；');
+  const btn = document.getElementById(`aibtn-${idx}`);
+  const result = document.getElementById(`airesult-${idx}`);
+  btn.disabled = true;
+  btn.textContent = '⏳ AI 分析中...';
+  result.classList.remove('show');
+
+  const prompt = `你是台股分析師。請用繁體中文，針對以下標的給出 150 字以內的分析與操作建議：
+股票：${d.name}（${s.code}），產業：${d.sector}
+今日：${d.price} 元，漲跌 ${d.changePct}%，本益比 ${d.pe}
+${s.type === 'hold' ? `持有成本：${s.cost}，損益：${((d.price-s.cost)/s.cost*100).toFixed(1)}%` : '（觀察中標的）'}
+最新消息：${news}
+請給出：① 目前狀況判斷 ② 風險提示 ③ 操作建議。用條列式，語氣專業但口語。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content && data.content.map) ? data.content.map(c => c.text || '').join('') : '無法取得回應';
+    result.textContent = text;
+    result.classList.add('show');
+  } catch(e) {
+    result.textContent = '⚠️ API 連線失敗，請稍後再試。';
+    result.classList.add('show');
+  }
+  btn.disabled = false;
+  btn.textContent = '✦ AI 分析此標的';
+}
+
+function toggleGlossary(el) {
+  el.classList.toggle('open');
+}
+
+async function getUSMarketRead(btn) {
+  const result = document.getElementById('usAIResult');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> AI 解讀中...';
+  result.classList.remove('show');
+
+  const us = LIVE_US;
+  const fmt = (key, name) => {
+    const d = us[key]; if (!d) return '';
+    const sign = d.changePct >= 0 ? '+' : '';
+    return `${name} ${sign}${d.changePct ? d.changePct.toFixed(2) : '0.00'}%，收 ${d.price}`;
+  };
+  const holdings = stocks.filter(s=>s.type==='hold').map(s=>{
+    const d = MOCK_STOCKS[s.code]||{};
+    return d.name || s.code;
+  }).join('、');
+
+  const prompt = `你是台股分析師，用繁體中文、150字以內，幫一個不太懂股票的散戶解讀：
+
+昨晚美股收盤數據：
+- ${fmt('SOX','費城半導體（SOX）')}
+- ${fmt('NASDAQ','納斯達克')}
+- ${fmt('SP500','標普500')}
+- ${fmt('NVDA','輝達（NVDA）')}
+- ${fmt('DXY','美元指數（DXY）')}
+- 美國10年期公債殖利率 ${us.US10Y ? us.US10Y.price : ''}%
+
+這位散戶的台股持倉：${holdings}
+
+請用最白話的語言回答：
+① 昨晚美股對今天台股開盤的影響（一句話）
+② 對他的持倉特別要注意什麼
+③ 今天台股開盤預計偏多還是偏空，用「🟢偏多」「🔴偏空」「🟡中性」開頭`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content && data.content.map) ? data.content.map(c => c.text||'').join('') : '無法取得回應';
+    result.textContent = text;
+    result.classList.add('show');
+  } catch(e) {
+    result.textContent = '⚠️ API 連線失敗，請稍後再試。';
+    result.classList.add('show');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '✦ AI 快讀：昨晚美股對今天台股的影響';
+}
+
+async function getMarketAnalysis(btn) {
+  const result = document.getElementById('marketAIResult');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> AI 分析中...';
+  result.classList.remove('show');
+
+  const us = LIVE_US;
+  const meta = LIVE_META;
+  const fmtUS = (key, name) => {
+    const d = us[key]; if (!d) return '';
+    const sign = d.changePct >= 0 ? '+' : '';
+    return `${name}${sign}${d.changePct ? d.changePct.toFixed(2) : '0.00'}%`;
+  };
+
+  const holdings = stocks.map(s => {
+    const d = MOCK_STOCKS[s.code] || {};
+    const shares = ((s.qty||0)*1000)+(s.shares||0);
+    const pl = (d.price && s.cost && shares)
+      ? `損益${((d.price-s.cost)/s.cost*100).toFixed(1)}%`
+      : '';
+    return `${d.name||s.code}(${s.type==='hold'?`持有${pl}`:'觀察'})`;
+  }).join('、');
+
+  const prompt = `你是台股分析師，用繁體中文、200字以內，整合以下資訊給一個不太懂股票的散戶操作建議：
+
+美股昨晚：${fmtUS('SOX','費半')}、${fmtUS('NASDAQ','Nasdaq')}、${fmtUS('NVDA','NVDA')}、${fmtUS('DXY','美元指數')}、公債殖利率${us.US10Y ? us.US10Y.price : ''}%
+台幣匯率：${meta.usdTwd || '-'}、外資買賣超：${meta.foreignBuy !== null ? (meta.foreignBuy>=0?'+':'')+meta.foreignBuy+'億' : '未知'}
+
+持倉：${holdings}
+
+請給：
+① 整體環境是對他的持倉友善還是不友善（一句話，用🟢🔴🟡）
+② 哪一檔今天最值得注意（說為什麼，白話）
+③ 今天有沒有需要做什麼動作，還是繼續持有就好
+
+語氣像在跟朋友說話，不要太專業術語。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content && data.content.map) ? data.content.map(c => c.text||'').join('') : '無法取得回應';
+    result.textContent = text;
+    result.classList.add('show');
+  } catch(e) {
+    result.textContent = '⚠️ API 連線失敗';
+    result.classList.add('show');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '✦ AI 整合分析：美股＋台股＋我的持倉今天怎麼看';
+}
+
+async function loadSuggestions() {
+  const box = document.getElementById('suggestList');
+  box.innerHTML = '<div class="loading-spinner"><div class="spinner"></div> AI 選股分析中...</div>';
+
+  const holdings = stocks.map(s => {
+    const d = MOCK_STOCKS[s.code] || {};
+    return `${d.name||s.code}（${d.sector||''}，${s.type==='hold'?'持有':'觀察'}）`;
+  }).join('、');
+
+  const prompt = `你是台股分析師。根據以下持倉，推薦 3 檔值得關注的台股標的，用 JSON 回傳：
+持倉：${holdings}
+大盤今日走強，外資連買，半導體、AI供應鏈強勢。
+回傳格式（只回 JSON，不要 markdown）：
+[{"code":"股票代號","name":"名稱","sector":"產業","price":"目前價","reason":"推薦理由（50字以內）","tags":["標籤1","標籤2"]}]`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content && data.content.map) ? data.content.map(c => c.text || '').join('') : '[]';
+    let arr;
+    try { arr = JSON.parse(text.replace(/```json|```/g,'').trim()); }
+    catch { arr = []; }
+
+    if (!arr.length) {
+      box.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:16px;text-align:center">無法取得推薦，請稍後再試</div>';
+      return;
+    }
+
+    const tagColors = ['hot','new',''];
+    box.innerHTML = arr.map((item, i) => `
+      <div class="suggest-card" style="animation-delay:${i*0.08}s">
+        <div class="suggest-header">
+          <div>
+            <span class="stock-name">${item.name}</span>
+            <span class="stock-code" style="margin-left:6px">${item.code}</span>
+          </div>
+          <span style="font-family:'Space Mono',monospace;font-size:14px;color:var(--text)">${item.price||'-'}</span>
+        </div>
+        <div class="suggest-reason">${item.reason}</div>
+        <div class="suggest-tags">
+          ${(item.tags||[]).map((t,ti) => `<span class="stag ${tagColors[ti]||''}">${t}</span>`).join('')}
+          <span class="stag">${item.sector}</span>
+        </div>
+        <button class="add-btn" style="margin-top:10px" onclick="quickAdd('${item.code}','${item.name}')">＋ 加入追蹤</button>
+      </div>
+    `).join('');
+  } catch(e) {
+    box.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:16px;text-align:center">⚠️ API 連線失敗</div>';
+  }
+}
+
+function quickAdd(code, name) {
+  if (stocks.find(s => s.code === code)) {
+    alert(`${name} 已在清單中`);
+    return;
+  }
+  stocks.push({ code, type: 'watch', note: 'AI 推薦觀察' });
+  renderStocks();
+  switchTab('portfolio');
+}
+
+// ─── DCA DATA ───────────────────────────────────────
+let dcaPlans = [
+  { code:'0050',  name:'元大台灣50',      day:22, amount:20000, note:'核心ETF' },
+  { code:'00878', name:'國泰永續高股息',   day:22, amount:5000,  note:'高股息存股' },
+  { code:'2330',  name:'台積電',           day:10, amount:5000,  note:'半導體龍頭' },
+  { code:'00940', name:'元大台灣價值高息', day:10, amount:10000, note:'價值高息ETF' },
+  { code:'0056',  name:'元大高股息',       day:22, amount:5000,  note:'月配息ETF' },
+];
+let editingDcaIdx = null;
+
+function daysUntil(targetDay) {
+  const now = new Date();
+  const today = now.getDate();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  let next = new Date(year, month, targetDay);
+  if (next <= now) next = new Date(year, month + 1, targetDay);
+  const diff = Math.ceil((next - now) / (1000*60*60*24));
+  return diff;
+}
+
+function renderDCA() {
+  const total = dcaPlans.reduce((s,p) => s+p.amount, 0);
+  document.getElementById('dcaTotalAmt').textContent = total.toLocaleString();
+
+  const byDay = {};
+  dcaPlans.forEach(p => {
+    byDay[p.day] = (byDay[p.day]||0) + p.amount;
+  });
+  const batchHtml = Object.entries(byDay).sort((a,b)=>+a[0]-+b[0]).map(([day,amt]) => `
+    <div class="dca-batch-row">
+      <span class="dca-batch-day">${day}日</span>
+      <span>扣 ${amt.toLocaleString()} 元</span>
+    </div>`).join('');
+  document.getElementById('dcaBatches').innerHTML = batchHtml;
+
+  const days = [...new Set(dcaPlans.map(p=>p.day))].sort((a,b)=>a-b);
+  let countdownHtml = '';
+  days.forEach(day => {
+    const d = daysUntil(day);
+    const soon = d <= 5;
+    const amt = byDay[day];
+    countdownHtml += `
+      <div class="countdown-banner ${soon ? 'countdown-soon' : 'countdown-ok'}">
+        ${soon ? '🔔' : '📆'}
+        <span>每月 ${day} 日扣款</span>
+        <span style="flex:1"></span>
+        ${soon
+          ? `<span>還有 <span class="countdown-num">${d}</span> 天！記得帳戶備妥 <b>${amt.toLocaleString()}</b> 元</span>`
+          : `<span>還有 <span class="countdown-num">${d}</span> 天</span>`
+        }
+      </div>`;
+  });
+  document.getElementById('dcaCountdown').innerHTML = countdownHtml;
+
+  const groups = {};
+  dcaPlans.forEach((p,i) => {
+    if (!groups[p.day]) groups[p.day] = [];
+    groups[p.day].push({...p, idx:i});
+  });
+  let listHtml = '';
+  Object.entries(groups).sort((a,b)=>+a[0]-+b[0]).forEach(([day, plans]) => {
+    const groupAmt = plans.reduce((s,p)=>s+p.amount,0);
+    listHtml += `<div class="dca-group-label"><span class="dca-day-badge">${day} 日</span> 每月扣款　共 ${groupAmt.toLocaleString()} 元</div>`;
+    plans.forEach(p => {
+      const priceInfo = MOCK_STOCKS[p.code];
+      const sharesApprox = priceInfo && priceInfo.price ? (p.amount / priceInfo.price).toFixed(2) : '-';
+      listHtml += `
+        <div class="dca-card">
+          <div class="dca-card-left">
+            <div class="dca-card-name">${p.name} <span class="stock-code">${p.code}</span></div>
+            <div class="dca-card-meta">
+              <span>📅 每月 ${p.day} 日</span>
+              ${priceInfo ? `<span>≈ ${sharesApprox} 股</span>` : ''}
+              ${p.note ? `<span>｜ ${p.note}</span>` : ''}
+            </div>
+          </div>
+          <div class="dca-card-right">
+            <div class="dca-amount">${p.amount.toLocaleString()}</div>
+            <div class="dca-amount-sub">新台幣</div>
+            <button class="dca-edit-btn" onclick="openDcaModal(${p.idx})">✏ 編輯</button>
+          </div>
+        </div>`;
+    });
+  });
+  document.getElementById('dcaList').innerHTML = listHtml;
+
+  const yearly = total * 12;
+  const maxDay = Object.entries(byDay).length > 0 ? Object.entries(byDay).sort((a,b)=>b[1]-a[1])[0] : ['-', 0];
+  document.getElementById('dcaYearly').innerHTML = `
+    <div class="dca-yearly-title">📊 年度試算</div>
+    <div class="dca-yearly-row"><span style="color:var(--text)">每月投入</span><span style="font-family:'Space Mono',monospace">${total.toLocaleString()} 元</span></div>
+    <div class="dca-yearly-row"><span style="color:var(--text)">全年投入</span><span style="font-family:'Space Mono',monospace;color:var(--accent2)">${yearly.toLocaleString()} 元</span></div>
+    <div class="dca-yearly-row"><span style="color:var(--text)">標的數量</span><span>${dcaPlans.length} 檔</span></div>
+    <div class="dca-yearly-row">
+      <span style="color:var(--text)">最大單日扣款</span>
+      <span style="font-family:'Space Mono',monospace;color:var(--warn)">
+        ${maxDay[1].toLocaleString()} 元
+        （${maxDay[0]}日）
+      </span>
+    </div>`;
+}
+
+function openDcaModal(idx) {
+  editingDcaIdx = (idx !== undefined) ? idx : null;
+  const modal = document.getElementById('dcaModal');
+  if (editingDcaIdx !== null) {
+    const p = dcaPlans[editingDcaIdx];
+    document.getElementById('dcaModalTitle').textContent = '編輯定期定額';
+    document.getElementById('dcaCode').value = p.code;
+    document.getElementById('dcaDay').value = p.day;
+    document.getElementById('dcaAmount').value = p.amount;
+    document.getElementById('dcaNote').value = p.note || '';
+  } else {
+    document.getElementById('dcaModalTitle').textContent = '新增定期定額';
+    ['dcaCode','dcaAmount','dcaNote'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('dcaDay').value = '22';
+  }
+  modal.classList.add('show');
+}
+
+function closeDcaModal() {
+  document.getElementById('dcaModal').classList.remove('show');
+  editingDcaIdx = null;
+}
+
+function saveDcaPlan() {
+  const code   = document.getElementById('dcaCode').value.trim();
+  const day    = parseInt(document.getElementById('dcaDay').value);
+  const amount = parseInt(document.getElementById('dcaAmount').value);
+  const note   = document.getElementById('dcaNote').value.trim();
+  if (!code || !amount) return;
+  const cleanCode = code.replace(/\D/g,'') || code;
+  const stockInfo = MOCK_STOCKS[cleanCode];
+  const name = stockInfo ? stockInfo.name : code;
+  const plan = { code: cleanCode, name, day, amount, note };
+  if (editingDcaIdx !== null) {
+    dcaPlans[editingDcaIdx] = plan;
+  } else {
+    dcaPlans.push(plan);
+  }
+  closeDcaModal();
+  localStorage.setItem('tstock_savedAt', Date.now());
+  saveToLocal();
+  renderDCA();
+  showToast('✅ 定期定額已儲存');
+  if (isCloudConfigured()) saveToCloud();
+}
+
+// ─── EXPORT / IMPORT ─────────────────────────────────
+
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = color || 'var(--accent)';
+  t.style.color = color || 'var(--accent)';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  t.style.opacity = '1';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => {
+    t.style.transform = 'translateX(-50%) translateY(80px)';
+    t.style.opacity = '0';
+  }, 2800);
+}
+
+function exportData() {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    stocks,
+    dcaPlans
+  };
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  a.href = url;
+  a.download = `台股追蹤板_${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ 已匯出！檔案已下載到裝置');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.stocks || !data.dcaPlans) throw new Error('格式不對');
+
+      if (!confirm(`確定要匯入？\n這將取代目前的 ${stocks.length} 筆標的和 ${dcaPlans.length} 筆定期定額。`)) {
+        event.target.value = '';
+        return;
+      }
+
+      stocks = data.stocks;
+      dcaPlans = data.dcaPlans;
+      saveToLocal();
+      renderStocks();
+      showToast(`✅ 匯入成功！共 ${stocks.length} 筆標的、${dcaPlans.length} 筆定期定額`);
+    } catch(err) {
+      showToast('❌ 匯入失敗：檔案格式有誤', '#ef4444');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ─── LOCAL STORAGE ───────────────────────────────────
+function saveToLocal() {
+  try {
+    localStorage.setItem('tstock_stocks', JSON.stringify(stocks));
+    localStorage.setItem('tstock_dca', JSON.stringify(dcaPlans));
+  } catch(e) {}
+}
+
+function loadFromLocal() {
+  try {
+    const s = localStorage.getItem('tstock_stocks');
+    const d = localStorage.getItem('tstock_dca');
+    if (s) stocks = JSON.parse(s);
+    if (d) dcaPlans = JSON.parse(d);
+  } catch(e) {}
+}
+
+// ─── GITHUB 雲端同步 ──────────────────────────────────
+
+const USERDATA_FILE = 'userdata.json';
+
+function getGHConfig() {
+  return {
+    owner : localStorage.getItem('gh_owner')  || '',
+    repo  : localStorage.getItem('gh_repo')   || '',
+    token : localStorage.getItem('gh_token')  || '',
+  };
+}
+
+function isCloudConfigured() {
+  const c = getGHConfig();
+  return c.owner && c.repo && c.token;
+}
+
+function updateCloudBtn() {
+  const btn = document.getElementById('cloudBtn');
+  if (!btn) return;
+  if (isCloudConfigured()) {
+    btn.textContent = '☁️✓';
+    btn.style.color = 'var(--accent)';
+    btn.title = '雲端已連線，點擊管理設定';
+  } else {
+    btn.textContent = '☁️';
+    btn.style.color = '';
+    btn.title = '點擊設定雲端同步';
+  }
+}
+
+function openCloudModal() {
+  const c = getGHConfig();
+  document.getElementById('ghOwner').value = c.owner;
+  document.getElementById('ghRepo').value  = c.repo;
+  document.getElementById('ghToken').value = c.token;
+  document.getElementById('cloudModal').classList.add('show');
+}
+function closeCloudModal() {
+  document.getElementById('cloudModal').classList.remove('show');
+}
+
+function saveCloudSettings() {
+  const owner = document.getElementById('ghOwner').value.trim();
+  const repo  = document.getElementById('ghRepo').value.trim();
+  const token = document.getElementById('ghToken').value.trim();
+  if (!owner || !repo || !token) {
+    showToast('❌ 請填完所有欄位', 'var(--up)');
+    return;
+  }
+  localStorage.setItem('gh_owner', owner);
+  localStorage.setItem('gh_repo',  repo);
+  localStorage.setItem('gh_token', token);
+  closeCloudModal();
+  updateCloudBtn();
+  showToast('✅ 設定儲存！正在同步到雲端...');
+  setTimeout(() => saveToCloud(), 800);
+}
+
+async function saveToCloud() {
+  const c = getGHConfig();
+  if (!c.owner || !c.repo || !c.token) return;
+
+  const payload = {
+    savedAt  : new Date().toISOString(),
+    version  : 1,
+    stocks,
+    dcaPlans
+  };
+
+  let sha = null;
+  try {
+    const check = await fetch(
+      `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${USERDATA_FILE}`,
+      { headers: { Authorization: `token ${c.token}`, Accept: 'application/vnd.github.v3+json' } }
+    );
+    if (check.ok) {
+      const info = await check.json();
+      sha = info.sha;
+    }
+  } catch(e) {}
+
+  const body = {
+    message : `📱 同步個人資料 ${new Date().toLocaleString('zh-TW')}`,
+    content : btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2)))),
+    ...(sha ? { sha } : {})
+  };
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${USERDATA_FILE}`,
+      {
+        method  : 'PUT',
+        headers : {
+          Authorization  : `token ${c.token}`,
+          Accept         : 'application/vnd.github.v3+json',
+          'Content-Type' : 'application/json'
+        },
+        body: JSON.stringify(body)
+      }
+    );
+    if (res.ok) {
+      showToast('☁️ 已同步到雲端！');
+    } else {
+      const err = await res.json();
+      showToast(`❌ 同步失敗：${err.message}`, 'var(--up)');
+    }
+  } catch(e) {
+    showToast('❌ 網路錯誤，同步失敗', 'var(--up)');
+  }
+}
+
+async function loadFromCloud() {
+  const c = getGHConfig();
+  if (!c.owner || !c.repo || !c.token) return false;
+
+  try {
+    showToast('☁️ 從雲端讀取資料...');
+    const res = await fetch(
+      `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${USERDATA_FILE}`,
+      { headers: { Authorization: `token ${c.token}`, Accept: 'application/vnd.github.v3+json' } }
+    );
+    if (!res.ok) return false;
+
+    const info = await res.json();
+    const raw  = decodeURIComponent(escape(atob(info.content.replace(/\n/g, ''))));
+    const data = JSON.parse(raw);
+
+    if (!data.stocks || !data.dcaPlans) return false;
+
+    const cloudTime = new Date(data.savedAt || 0).getTime();
+    const localTime = parseInt(localStorage.getItem('tstock_savedAt') || '0');
+
+    if (cloudTime > localTime) {
+      stocks   = data.stocks;
+      dcaPlans = data.dcaPlans;
+      saveToLocal();
+      localStorage.setItem('tstock_savedAt', cloudTime);
+      showToast(`☁️ 已從雲端載入最新資料（${data.savedAt ? data.savedAt.slice(0,10) : ''}）`);
+      return true;
+    } else {
+      showToast('☁️ 本地資料是最新的');
+      return false;
+    }
+  } catch(e) {
+    console.warn('雲端載入失敗', e);
+    return false;
+  }
+}
+
+// ─── 主題 & 字體控制 ─────────────────────────────────
+
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('themeIcon').textContent  = isLight ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = isLight ? '深色模式' : '淺色模式';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+function setFont(size) {
+  ['sm','md','lg'].forEach(s => {
+    document.documentElement.classList.remove(`font-${s}`);
+    document.getElementById(`fs${s.charAt(0).toUpperCase()+s.slice(1)}Btn`)?.classList.remove('active');
+  });
+  if (size !== 'md') document.documentElement.classList.add(`font-${size}`);
+  document.getElementById(`fs${size.charAt(0).toUpperCase()+size.slice(1)}Btn`)?.classList.add('active');
+  localStorage.setItem('fontSize', size);
+}
+
+function applyStoredPrefs() {
+  const theme = localStorage.getItem('theme');
+  if (theme === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('themeIcon').textContent  = '🌙';
+    document.getElementById('themeLabel').textContent = '深色模式';
+  }
+  const fs = localStorage.getItem('fontSize') || 'md';
+  setFont(fs);
+}
+
+// ─── INIT ────────────────────────────────────────────
+applyStoredPrefs();
+updateCloudBtn();
+document.getElementById('currentDate').textContent = '載入中...';
+
+// 1. 先讀本地，馬上渲染，讓畫面立刻有資料
+loadFromLocal();
+renderStocks();
+
+// 2. 背景非同步：先試著從雲端拿最新個人資料，再載入股價
+(async () => {
+  try {
+    const cloudLoaded = await loadFromCloud();
+    if (cloudLoaded) renderStocks();   // 雲端資料較新，重繪
+  } catch(e) { console.warn('雲端載入失敗', e); }
+
+  try {
+    await loadDataJson();              // 載入 data.json 股價，內部會再 renderStocks()
+  } catch(e) { console.warn('data.json 載入失敗', e); }
+})();
+</script>
+</body>
+</html>
