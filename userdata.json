@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-18T00:40:43.570Z",
+  "savedAt": "2026-05-18T01:48:44.046Z",
   "version": 1,
   "stocks": [
     {
@@ -47,16 +47,6 @@
       "note": "高股息存股"
     },
     {
-      "code": "3006",
-      "type": "watch",
-      "note": "AI Server IC，觀察突破"
-    },
-    {
-      "code": "4533",
-      "type": "watch",
-      "note": "注意本益比偏高"
-    },
-    {
       "code": "00940",
       "type": "hold",
       "cost": 10.51,
@@ -66,6 +56,16 @@
       "stopLoss": null,
       "target": null,
       "note": ""
+    },
+    {
+      "code": "3006",
+      "type": "watch",
+      "note": "AI Server IC，觀察突破"
+    },
+    {
+      "code": "4533",
+      "type": "watch",
+      "note": "注意本益比偏高"
     }
   ],
   "dcaPlans": [
