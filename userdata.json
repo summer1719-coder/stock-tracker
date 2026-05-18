@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-18T00:35:47.733Z",
+  "savedAt": "2026-05-18T00:36:05.216Z",
   "version": 1,
   "stocks": [
     {
@@ -15,7 +15,7 @@
       "cost": 68.96,
       "qty": 5,
       "shares": 105,
-      "buyDate": null,
+      "buyDate": "2024-02-15",
       "stopLoss": null,
       "target": null,
       "note": "ETF定期定額"
