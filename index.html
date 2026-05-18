@@ -2504,14 +2504,22 @@ function applyStoredPrefs() {
 applyStoredPrefs();
 updateCloudBtn();
 document.getElementById('currentDate').textContent = '載入中...';
-loadFromLocal();   // 先讀本地（快）
 
-// 嘗試從雲端載入（若有設定 & 雲端資料較新，會覆蓋本地）
-loadFromCloud().then(cloudLoaded => {
-  if (cloudLoaded) renderStocks(); // 雲端資料已載入，重新渲染
-});
+// 1. 先讀本地，馬上渲染，讓畫面立刻有資料
+loadFromLocal();
+renderStocks();
 
-loadDataJson();    // 載入股價資料
+// 2. 背景非同步：先試著從雲端拿最新個人資料，再載入股價
+(async () => {
+  try {
+    const cloudLoaded = await loadFromCloud();
+    if (cloudLoaded) renderStocks();   // 雲端資料較新，重繪
+  } catch(e) { console.warn('雲端載入失敗', e); }
+
+  try {
+    await loadDataJson();              // 載入 data.json 股價，內部會再 renderStocks()
+  } catch(e) { console.warn('data.json 載入失敗', e); }
+})();
 </script>
 </body>
 </html>
