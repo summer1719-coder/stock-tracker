@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-18T00:36:05.216Z",
+  "savedAt": "2026-05-18T00:36:33.014Z",
   "version": 1,
   "stocks": [
     {
@@ -24,8 +24,12 @@
       "code": "0056",
       "type": "hold",
       "cost": 37.02,
-      "note": "配息再投入",
-      "qty": 3003
+      "qty": 3,
+      "shares": 3,
+      "buyDate": "2025-08-15",
+      "stopLoss": null,
+      "target": null,
+      "note": "配息再投入"
     },
     {
       "code": "00878",
