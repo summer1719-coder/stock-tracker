@@ -1,5 +1,5 @@
 """
-台股追蹤板 - 自動抓資料腳本 v6 (全自動名單 + 預測保留終極版)
+台股追蹤板 - 自動抓資料腳本 v7 (全自動名單 + 預測保留 + 自動修復終極版)
 """
 
 import json, datetime, requests, time, os, re
@@ -330,8 +330,6 @@ def run_close():
     market_news = fetch_market_news()
 
     now = tw_now()
-    
-    # ✨ 關鍵修復：先讀取既有的檔案，把早上的「預測橫幅」抓出來保留！
     out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
     existing = {}
     if os.path.exists(out_path):
@@ -351,8 +349,6 @@ def run_close():
             "marketNews" : market_news,
         },
         "stockNews"  : stock_news,
-        
-        # ✨ 將早上的預測資料寫回去，不再被覆蓋掉！
         "openingPreview": existing.get("openingPreview"),
         "premarketAt": existing.get("premarketAt")
     }
@@ -366,8 +362,25 @@ def run_close():
 # ── 主程式 ──────────────────────────────────────────────────────
 
 def main():
-    # 恢復日夜自動切換的功能！
     mode = detect_mode()
+    
+    # 🌟 自動修復機制：偵測到之前的綠色 -100% 壞資料時，強制重抓一次收盤價
+    out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
+    needs_fix = False
+    if os.path.exists(out_path):
+        try:
+            with open(out_path, 'r', encoding='utf-8') as f:
+                d = json.load(f)
+                # 檢查台積電是否跌幅超過 50%，如果是，代表遇到舊 bug 了
+                if d.get('stocks', {}).get('2330', {}).get('changePct', 0) < -50:
+                    needs_fix = True
+        except: pass
+
+    if needs_fix:
+        log("⚠️ 偵測到異常的股價資料 (-100%)，啟動強制修復...")
+        run_close()
+
+    # 正常的日夜排程
     if mode == 'premarket':
         run_premarket()
     else:
