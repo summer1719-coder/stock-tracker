@@ -1,6 +1,6 @@
 {
-  "mode": "premarket",
-  "updatedAt": "2026/05/18 08:32",
+  "mode": "close",
+  "updatedAt": "2026/05/18 13:17",
   "tradingDate": "2026/05/18",
   "stocks": {
     "0050": {
@@ -36,17 +36,6 @@
       "vol": "129,400張",
       "source": "TWSE"
     },
-    "00919": {
-      "name": "群益台灣精選高息",
-      "price": 25.76,
-      "prev": 25.89,
-      "high": 26.37,
-      "low": 25.66,
-      "change": -0.13,
-      "changePct": -0.5,
-      "vol": "146,122張",
-      "source": "TWSE"
-    },
     "00940": {
       "name": "元大台灣價值高息",
       "price": 10.95,
@@ -56,17 +45,6 @@
       "change": -0.22,
       "changePct": -1.97,
       "vol": "35,342張",
-      "source": "TWSE"
-    },
-    "2303": {
-      "name": "聯電",
-      "price": 110.0,
-      "prev": 108.0,
-      "high": 118.0,
-      "low": 108.0,
-      "change": 2.0,
-      "changePct": 1.85,
-      "vol": "413,940張",
       "source": "TWSE"
     },
     "2330": {
@@ -80,28 +58,6 @@
       "vol": "34,360張",
       "source": "TWSE"
     },
-    "2382": {
-      "name": "廣達",
-      "price": 306.0,
-      "prev": 334.5,
-      "high": 317.0,
-      "low": 305.0,
-      "change": -28.5,
-      "changePct": -8.52,
-      "vol": "66,013張",
-      "source": "TWSE"
-    },
-    "2884": {
-      "name": "玉山金",
-      "price": 31.95,
-      "prev": 31.85,
-      "high": 32.1,
-      "low": 31.8,
-      "change": 0.1,
-      "changePct": 0.31,
-      "vol": "35,569張",
-      "source": "TWSE"
-    },
     "3006": {
       "name": "晶豪科",
       "price": 251.0,
@@ -111,28 +67,6 @@
       "change": 13.0,
       "changePct": 5.46,
       "vol": "42,081張",
-      "source": "TWSE"
-    },
-    "3481": {
-      "name": "群創",
-      "price": 36.1,
-      "prev": 35.4,
-      "high": 38.4,
-      "low": 35.25,
-      "change": 0.7,
-      "changePct": 1.98,
-      "vol": "892,798張",
-      "source": "TWSE"
-    },
-    "6770": {
-      "name": "力積電",
-      "price": 62.8,
-      "prev": 62.2,
-      "high": 67.0,
-      "low": 62.3,
-      "change": 0.6,
-      "changePct": 0.96,
-      "vol": "356,822張",
       "source": "TWSE"
     }
   },
@@ -166,11 +100,11 @@
       "last_trade": "2026/05/15"
     },
     "DXY": {
-      "price": 99.38,
+      "price": 99.32,
       "prev": 99.27,
-      "change": 0.11,
-      "changePct": 0.11,
-      "last_trade": "2026/05/17"
+      "change": 0.05,
+      "changePct": 0.05,
+      "last_trade": "2026/05/18"
     },
     "US10Y": {
       "price": 4.59,
@@ -181,24 +115,18 @@
     }
   },
   "twMarket": {
-    "foreignBuy": null,
-    "usdTwd": 31.55,
+    "foreignBuy": 0.0,
+    "usdTwd": 31.65,
     "marketNews": []
   },
   "stockNews": {
-    "2382": [],
+    "0056": [],
     "0050": [],
-    "2303": [],
-    "6770": [],
-    "00919": [],
-    "4533": [],
-    "00940": [],
-    "00878": [],
     "2330": [],
     "3006": [],
-    "0056": [],
-    "3481": [],
-    "2884": []
+    "4533": [],
+    "00940": [],
+    "00878": []
   },
   "openingPreview": {
     "outlook": "🔴 偏空",
