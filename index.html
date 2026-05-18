@@ -1066,6 +1066,20 @@
       </div>
       <span class="market-val" style="color:var(--warn)">4.42% <span class="badge" style="background:rgba(245,158,11,0.15);color:var(--warn)">▲ 0.03%</span></span>
     </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">VIX 恐慌指數</span>
+        <span class="market-hint">突破20市場緊張，突破30極度恐慌</span>
+      </div>
+      <span class="market-val down">14.5 <span class="badge badge-down">▼ 8.5%</span></span>
+    </div>
+    <div class="market-row">
+      <div class="market-name-wrap">
+        <span class="market-name">黃金期貨 Gold</span>
+        <span class="market-hint">避險情緒指標，戰亂/降息時上漲</span>
+      </div>
+      <span class="market-val up">2,450 <span class="badge badge-up">▲ 0.64%</span></span>
+    </div>
   </div>
 
   <div id="usAIBox" style="margin-bottom:16px">
@@ -1308,6 +1322,8 @@ const FALLBACK_US = {
   NVDA  : { price:1148, change:35.8, changePct:3.22 },
   DXY   : { price:104.2, change:-0.32, changePct:-0.31 },
   US10Y : { price:4.42, change:0.03, changePct:0.68 },
+  VIX   : { price:14.5, change:1.2, changePct:8.5 },
+  GOLD  : { price:2450, change:15.5, changePct:0.64 },
 };
 
 let LIVE_STOCKS = { ...FALLBACK_STOCKS };
@@ -1435,7 +1451,9 @@ function updateUSMarketUI() {
     fmt('SP500',  '標普 500 S&P',    '美國大盤整體') +
     fmt('NVDA',   '輝達 NVDA',       'AI族群領頭羊，台灣AI供應鏈全跟') +
     fmt('DXY',    '美元指數 DXY',    '強→外資可能撤台灣，弱→資金流入') +
-    fmt('US10Y',  '美國10年期公債',  '高→資金離開股市，低→資金進股市', true);
+    fmt('US10Y',  '美國10年期公債',  '高→資金離開股市，低→資金進股市', true) +
+    fmt('VIX',    'VIX 恐慌指數',    '突破20市場緊張，突破30極度恐慌') +
+    fmt('GOLD',   '黃金期貨 Gold',   '避險情緒指標，戰亂/降息時上漲');
 
   const fEl = document.getElementById('foreignBuyVal');
   if (fEl && meta.foreignBuy !== null) {
@@ -1849,6 +1867,8 @@ async function getUSMarketRead(btn) {
 - ${fmt('NVDA','輝達（NVDA）')}
 - ${fmt('DXY','美元指數（DXY）')}
 - 美國10年期公債殖利率 ${us.US10Y ? us.US10Y.price : ''}%
+- VIX 恐慌指數 ${us.VIX ? us.VIX.price : ''}
+- 黃金價格 ${us.GOLD ? us.GOLD.price : ''}
 
 這位散戶的台股持倉：${holdings}
 
@@ -1904,7 +1924,7 @@ async function getMarketAnalysis(btn) {
 
   const prompt = `你是台股分析師，用繁體中文、200字以內，整合以下資訊給一個不太懂股票的散戶操作建議：
 
-美股昨晚：${fmtUS('SOX','費半')}、${fmtUS('NASDAQ','Nasdaq')}、${fmtUS('NVDA','NVDA')}、${fmtUS('DXY','美元指數')}、公債殖利率${us.US10Y ? us.US10Y.price : ''}%
+美股昨晚：${fmtUS('SOX','費半')}、${fmtUS('NASDAQ','Nasdaq')}、${fmtUS('NVDA','NVDA')}、${fmtUS('DXY','美元指數')}、公債殖利率${us.US10Y ? us.US10Y.price : ''}%、VIX${us.VIX ? us.VIX.price : ''}、黃金${us.GOLD ? us.GOLD.price : ''}
 台幣匯率：${meta.usdTwd || '-'}、外資買賣超：${meta.foreignBuy !== null ? (meta.foreignBuy>=0?'+':'')+meta.foreignBuy+'億' : '未知'}
 
 持倉：${holdings}
