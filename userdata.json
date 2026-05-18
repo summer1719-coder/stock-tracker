@@ -1,50 +1,34 @@
 {
-  "savedAt": "2026-05-16T18:30:29.266Z",
+  "savedAt": "2026-05-18T00:33:53.577Z",
   "version": 1,
   "stocks": [
     {
       "code": "2330",
       "type": "hold",
       "cost": 1813.91,
-      "qty": 0,
-      "shares": 121,
-      "buyDate": "2025-10-08",
-      "stopLoss": null,
-      "target": null,
-      "note": "長期核心持股"
+      "note": "長期核心持股",
+      "qty": 121
     },
     {
       "code": "0050",
       "type": "hold",
       "cost": 68.96,
-      "qty": 5,
-      "shares": 105,
-      "buyDate": "2024-02-15",
-      "stopLoss": null,
-      "target": null,
-      "note": "ETF定期定額"
+      "note": "ETF定期定額",
+      "qty": 5105
     },
     {
       "code": "0056",
       "type": "hold",
       "cost": 37.02,
-      "qty": 3,
-      "shares": 3,
-      "buyDate": "2025-08-15",
-      "stopLoss": null,
-      "target": null,
-      "note": "配息再投入"
+      "note": "配息再投入",
+      "qty": 3003
     },
     {
       "code": "00878",
       "type": "hold",
       "cost": 22.04,
-      "qty": 8,
-      "shares": 16,
-      "buyDate": "2024-06-11",
-      "stopLoss": null,
-      "target": null,
-      "note": "高股息存股"
+      "note": "高股息存股",
+      "qty": 8016
     },
     {
       "code": "3006",
@@ -55,83 +39,6 @@
       "code": "4533",
       "type": "watch",
       "note": "注意本益比偏高"
-    },
-    {
-      "code": "00919",
-      "type": "hold",
-      "cost": 21.44,
-      "qty": 0,
-      "shares": 16,
-      "buyDate": "2025-11-10",
-      "stopLoss": null,
-      "target": null,
-      "note": ""
-    },
-    {
-      "code": "00940",
-      "type": "hold",
-      "cost": 10.51,
-      "qty": 3,
-      "shares": 886,
-      "buyDate": "2026-04-17",
-      "stopLoss": null,
-      "target": null,
-      "note": ""
-    },
-    {
-      "code": "2884",
-      "type": "watch",
-      "cost": null,
-      "qty": 0,
-      "shares": 0,
-      "buyDate": null,
-      "stopLoss": null,
-      "target": null,
-      "note": ""
-    },
-    {
-      "code": "2303",
-      "type": "watch",
-      "cost": null,
-      "qty": 0,
-      "shares": 0,
-      "buyDate": null,
-      "stopLoss": null,
-      "target": null,
-      "note": ""
-    },
-    {
-      "code": "3481",
-      "type": "watch",
-      "cost": null,
-      "qty": 0,
-      "shares": 0,
-      "buyDate": null,
-      "stopLoss": null,
-      "target": null,
-      "note": ""
-    },
-    {
-      "code": "6770",
-      "type": "watch",
-      "cost": null,
-      "qty": 0,
-      "shares": 0,
-      "buyDate": null,
-      "stopLoss": null,
-      "target": null,
-      "note": ""
-    },
-    {
-      "code": "2382",
-      "type": "watch",
-      "cost": null,
-      "qty": 0,
-      "shares": 0,
-      "buyDate": null,
-      "stopLoss": null,
-      "target": null,
-      "note": ""
     }
   ],
   "dcaPlans": [
