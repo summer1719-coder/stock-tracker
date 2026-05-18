@@ -1,5 +1,5 @@
 """
-台股追蹤板 - 自動抓資料腳本 v7 (全自動名單 + 預測保留 + 自動修復終極版)
+台股追蹤板 - 自動抓資料腳本 v8 (含VIX恐慌指數與黃金價格)
 """
 
 import json, datetime, requests, time, os, re
@@ -51,7 +51,7 @@ def detect_mode():
     return mode
 
 # ════════════════════════════════════════════════════
-# 美股指數（yfinance 突破封鎖版）
+# 美股指數（包含 VIX 與 GOLD）
 # ════════════════════════════════════════════════════
 
 def fetch_us_markets():
@@ -62,6 +62,8 @@ def fetch_us_markets():
         'NVDA'  : 'NVDA',
         'DXY'   : 'DX-Y.NYB',
         'US10Y' : '^TNX',
+        'VIX'   : '^VIX',   # 新增 VIX 恐慌指數
+        'GOLD'  : 'GC=F',   # 新增黃金期貨
     }
     result = {}
     log("使用 yfinance 抓取美股指數...")
@@ -104,6 +106,8 @@ def fetch_usd_twd():
 
 def build_premarket_summary(us, usd_twd):
     sox = us.get('SOX', {}); nvda = us.get('NVDA', {}); dxy = us.get('DXY', {}); us10y = us.get('US10Y', {})
+    vix = us.get('VIX', {}); gold = us.get('GOLD', {})
+    
     score = 0
     if sox.get('changePct', 0) > 1: score += 2
     elif sox.get('changePct', 0) > 0: score += 1
@@ -116,23 +120,29 @@ def build_premarket_summary(us, usd_twd):
     elif dxy.get('changePct', 0) > 0.3: score -= 1
     if us10y.get('price', 4.5) < 4.0: score += 1
     elif us10y.get('price', 4.5) > 4.8: score -= 1
+    
+    # 增加 VIX 恐慌指數的扣分邏輯
+    if vix.get('price', 15) > 30: score -= 2
+    elif vix.get('price', 15) > 20: score -= 1
+    elif vix.get('price', 15) < 15: score += 1
 
     if score >= 3:
-        outlook, summary = "🟢 偏多", "美股昨晚表現強勁，台股今日開盤預計跟漲，科技股尤其值得關注。"
+        outlook, summary = "🟢 偏多", "美股昨晚表現強勁，市場情緒穩定，台股今日開盤預計跟漲，科技股尤其值得關注。"
     elif score >= 1:
         outlook, summary = "🟢 小幅偏多", "美股昨晚小漲，台股今日開盤預計溫和上漲，整體氣氛尚可。"
     elif score == 0:
         outlook, summary = "🟡 中性", "美股昨晚漲跌互見，台股今日開盤方向不明，建議觀望為主。"
     elif score >= -2:
-        outlook, summary = "🔴 小幅偏空", "美股昨晚偏弱，台股今日開盤預計承壓，注意持股變化。"
+        outlook, summary = "🔴 小幅偏空", "美股昨晚偏弱，台股今日開盤預計承壓，注意避險情緒。"
     else:
-        outlook, summary = "🔴 偏空", "美股昨晚明顯下跌，台股今日開盤預計跟跌，建議謹慎。"
+        outlook, summary = "🔴 偏空", "美股昨晚明顯下跌且恐慌情緒升溫，台股今日開盤預計跟跌，建議謹慎。"
 
     details = []
     details.append(f"費半 {sox.get('changePct', 0)}%（{'正面' if sox.get('changePct', 0)>0 else '負面'}訊號，直接影響台積電等半導體股）")
     details.append(f"輝達 {nvda.get('changePct', 0)}%（{'AI概念股跟漲' if nvda.get('changePct', 0)>0 else 'AI族群可能承壓'}）")
-    details.append(f"美元指數 {dxy.get('changePct', 0)}%（匯率波動參考）")
     details.append(f"美國10年期公債 {us10y.get('price', 0)}%（資金流向參考）")
+    details.append(f"VIX 恐慌指數 {vix.get('price', 0)}（{'大於20，市場情緒緊張' if vix.get('price', 0) > 20 else '小於20，市場情緒尚屬穩定'}）")
+    details.append(f"黃金價格 {gold.get('price', 0)}（避險情緒指標）")
     
     return {'outlook': outlook, 'summary': summary, 'details': details, 'score': score}
 
@@ -364,14 +374,12 @@ def run_close():
 def main():
     mode = detect_mode()
     
-    # 🌟 自動修復機制：偵測到之前的綠色 -100% 壞資料時，強制重抓一次收盤價
     out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
     needs_fix = False
     if os.path.exists(out_path):
         try:
             with open(out_path, 'r', encoding='utf-8') as f:
                 d = json.load(f)
-                # 檢查台積電是否跌幅超過 50%，如果是，代表遇到舊 bug 了
                 if d.get('stocks', {}).get('2330', {}).get('changePct', 0) < -50:
                     needs_fix = True
         except: pass
@@ -380,7 +388,6 @@ def main():
         log("⚠️ 偵測到異常的股價資料 (-100%)，啟動強制修復...")
         run_close()
 
-    # 正常的日夜排程
     if mode == 'premarket':
         run_premarket()
     else:
