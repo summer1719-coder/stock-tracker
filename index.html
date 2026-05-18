@@ -966,14 +966,14 @@
     <div class="summary-sub" style="color:var(--muted)">檔</div>
   </div>
   <div class="summary-card">
-    <div class="summary-label">追蹤中</div>
-    <div class="summary-value" style="color:#fcd34d" id="watchCount">-</div>
-    <div class="summary-sub" style="color:var(--muted)">檔</div>
+    <div class="summary-label">今日損益</div>
+    <div class="summary-value" id="todayPL">-</div>
+    <div class="summary-sub" id="todayPLAmt" style="color:var(--muted)">元</div>
   </div>
   <div class="summary-card">
-    <div class="summary-label">今日漲幅王</div>
-    <div class="summary-value up" id="topGainer">-</div>
-    <div class="summary-sub up" id="topGainerPct">-</div>
+    <div class="summary-label">總損益</div>
+    <div class="summary-value" id="totalPL">-</div>
+    <div class="summary-sub" id="totalPLAmt" style="color:var(--muted)">元</div>
   </div>
   <div class="summary-card">
     <div class="summary-label">異常訊號</div>
@@ -1354,15 +1354,6 @@ async function loadDataJson() {
     // 大盤新聞
     if (d.twMarket?.marketNews) LIVE_MARKET_NEWS = d.twMarket.marketNews;
 
-    // 開盤預測（premarket 模式）
-    if (d.openingPreview) showOpeningBanner(d.openingPreview, d.premarketAt);
-
-    // 模式標記
-    const modeLabel = d.mode === 'premarket'
-      ? `☀️ 開盤前預覽　${d.premarketAt}`
-      : `📊 ${d.updatedAt} 收盤`;
-    document.getElementById('currentDate').textContent = modeLabel;
-
     // 美股
     if (d.usMarkets) LIVE_US = d.usMarkets;
 
@@ -1371,10 +1362,17 @@ async function loadDataJson() {
       LIVE_META.foreignBuy = d.twMarket.foreignBuy;
       LIVE_META.usdTwd     = d.twMarket.usdTwd;
     }
-    LIVE_META.updatedAt = d.updatedAt || '未知';
+    LIVE_META.updatedAt = d.updatedAt || d.premarketAt || '未知';
 
-    // 更新頁面
-    document.getElementById('currentDate').textContent = `${d.updatedAt} 收盤`;
+    // 開盤預測（premarket 模式）
+    if (d.openingPreview) showOpeningBanner(d.openingPreview, d.premarketAt);
+
+    // 模式標記（只設定一次，不被後面蓋掉）
+    const modeLabel = d.mode === 'premarket'
+      ? `☀️ 開盤前預覽　${d.premarketAt || ''}`
+      : `📊 ${d.updatedAt || ''} 收盤`;
+    document.getElementById('currentDate').textContent = modeLabel;
+
     updateUSMarketUI();
     renderStocks();
     console.log('✅ data.json 載入成功', d.updatedAt || d.premarketAt);
@@ -1486,12 +1484,13 @@ const NEWS = new Proxy({}, {
 });
 
 let stocks = [
-  { code:'2330', type:'hold', cost:1813.91, note:'長期核心持股', qty:121 },
-  { code:'0050', type:'hold', cost:68.96, note:'ETF定期定額', qty:5105 },
-  { code:'0056', type:'hold', cost:37.02, note:'配息再投入', qty:3003 },
-  { code:'00878', type:'hold', cost:22.04, note:'高股息存股', qty:8016 },
-  { code:'3006', type:'watch', note:'AI Server IC，觀察突破' },
-  { code:'4533', type:'watch', note:'注意本益比偏高' },
+  { code:'2330',  type:'hold', cost:1813.91, qty:0,  shares:121, buyDate:'2025-10-08', stopLoss:null, target:null, note:'長期核心持股' },
+  { code:'0050',  type:'hold', cost:68.96,   qty:5,  shares:105, buyDate:'2024-02-15', stopLoss:null, target:null, note:'ETF定期定額' },
+  { code:'0056',  type:'hold', cost:37.02,   qty:3,  shares:3,   buyDate:'2025-08-15', stopLoss:null, target:null, note:'配息再投入' },
+  { code:'00878', type:'hold', cost:22.04,   qty:8,  shares:16,  buyDate:'2024-06-11', stopLoss:null, target:null, note:'高股息存股' },
+  { code:'00940', type:'hold', cost:10.51,   qty:3,  shares:886, buyDate:'2026-04-17', stopLoss:null, target:null, note:'' },
+  { code:'3006',  type:'watch', note:'AI Server IC，觀察突破' },
+  { code:'4533',  type:'watch', note:'注意本益比偏高' },
 ];
 
 function today() {
@@ -1501,29 +1500,53 @@ function today() {
 
 function updateSummary() {
   const hold = stocks.filter(s => s.type === 'hold').length;
-  const watch = stocks.filter(s => s.type === 'watch').length;
   document.getElementById('holdCount').textContent = hold;
-  document.getElementById('watchCount').textContent = watch;
 
-  // Top gainer
-  let best = null, bestPct = -Infinity;
+  let totalPL = 0, totalPLPct = 0, totalCost = 0;
+  let todayPL = 0;
+  let alerts  = 0;
+
   stocks.forEach(s => {
     const d = MOCK_STOCKS[s.code];
-    if (d && d.changePct > bestPct) { bestPct = d.changePct; best = d; }
+    if (!d || s.type !== 'hold') return;
+    const shares = ((s.qty||0) * 1000) + (s.shares||0);
+    if (!shares || !s.cost) return;
+
+    // 總損益
+    const cost    = s.cost * shares;
+    const current = d.price * shares;
+    totalCost += cost;
+    totalPL   += (current - cost);
+
+    // 今日損益（昨收 → 今收）
+    if (d.prev) todayPL += (d.price - d.prev) * shares;
+
+    // 警示
+    if (Math.abs(d.changePct||0) > 4.5) alerts++;
+    if (typeof d.pe === 'number' && d.pe > 500) alerts++;
+    if (s.stopLoss && d.price <= s.stopLoss) alerts++;
+    if (s.target && d.price >= s.target) alerts++;
   });
-  if (best) {
-    document.getElementById('topGainer').textContent = best.name;
-    document.getElementById('topGainerPct').textContent = `+${bestPct.toFixed(2)}%`;
+
+  // 今日損益
+  const todayCls = todayPL >= 0 ? 'up' : 'down';
+  const todaySign = todayPL >= 0 ? '+' : '';
+  document.getElementById('todayPL').textContent = `${todaySign}${Math.round(todayPL).toLocaleString()}`;
+  document.getElementById('todayPL').className = `summary-value ${todayCls}`;
+  document.getElementById('todayPLAmt').textContent = '元（今日）';
+  document.getElementById('todayPLAmt').className   = `summary-sub ${todayCls}`;
+
+  // 總損益
+  if (totalCost > 0) {
+    totalPLPct = (totalPL / totalCost * 100);
+    const cls  = totalPL >= 0 ? 'up' : 'down';
+    const sign = totalPL >= 0 ? '+' : '';
+    document.getElementById('totalPL').textContent  = `${sign}${totalPLPct.toFixed(2)}%`;
+    document.getElementById('totalPL').className    = `summary-value ${cls}`;
+    document.getElementById('totalPLAmt').textContent = `${sign}${Math.round(totalPL).toLocaleString()} 元`;
+    document.getElementById('totalPLAmt').className  = `summary-sub ${cls}`;
   }
 
-  // Alerts: pe > 100 or change > 5%
-  let alerts = 0;
-  stocks.forEach(s => {
-    const d = MOCK_STOCKS[s.code];
-    if (!d) return;
-    if (Math.abs(d.changePct) > 4.5) alerts++;
-    if (typeof d.pe === 'number' && d.pe > 500) alerts++;
-  });
   document.getElementById('alertCount').textContent = alerts;
 }
 
@@ -1571,6 +1594,33 @@ function renderStocks() {
 
     const news = (NEWS[s.code] || []).map(n =>
       `<div class="news-item"><span class="news-dot">•</span>${n}</div>`).join('');
+
+    // 今日高低區間色條
+    let hlBar = '';
+    if (d.high && d.low && d.price) {
+      const range = d.high - d.low;
+      const pos   = range > 0 ? ((d.price - d.low) / range * 100).toFixed(0) : 50;
+      hlBar = `
+        <div style="padding:0 18px 12px">
+          <div style="display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px">
+            <span>低 ${d.low}</span>
+            <span style="color:var(--text);font-weight:600">現 ${d.price}</span>
+            <span>高 ${d.high}</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;position:relative">
+            <div style="position:absolute;left:0;top:0;height:100%;width:${pos}%;background:linear-gradient(90deg,var(--down),var(--up));border-radius:3px;transition:width 0.5s"></div>
+            <div style="position:absolute;top:-3px;left:calc(${pos}% - 5px);width:10px;height:10px;border-radius:50%;background:var(--text);border:2px solid var(--surface)"></div>
+          </div>
+        </div>`;
+    }
+
+    // 今日損益（這筆持倉）
+    let todayPlHtml = '';
+    if (s.type === 'hold' && d.price && d.prev && totalShares) {
+      const todayAmt = (d.price - d.prev) * totalShares;
+      const todayCls = todayAmt >= 0 ? 'up' : 'down';
+      todayPlHtml = `<div class="metric">今日損益 <span class="${todayCls}">${todayAmt>=0?'+':''}${Math.round(todayAmt).toLocaleString()}元</span></div>`;
+    }
 
     // 詳細資訊格
     const cells = [];
@@ -1622,7 +1672,9 @@ function renderStocks() {
         ${d.dividendYield ? `<div class="metric">殖利率 <span>${d.dividendYield}%</span></div>` : ''}
         <div class="metric">量 <span>${d.vol||'-'}</span></div>
         ${marketVal ? `<div class="metric">市值 <span>${(marketVal/10000).toFixed(1)}萬</span></div>` : ''}
+        ${todayPlHtml}
       </div>
+      ${hlBar}
       ${alertHtml}
       <div class="stock-detail" id="detail-${idx}">
         ${detailGrid}
@@ -1806,22 +1858,55 @@ async function getUSMarketRead(btn) {
   btn.innerHTML = '<div class="spinner"></div> AI 解讀中...';
   result.classList.remove('show');
 
+  const us = LIVE_US;
+  const fmt = (key, name) => {
+    const d = us[key]; if (!d) return '';
+    const sign = d.changePct >= 0 ? '+' : '';
+    return `${name} ${sign}${d.changePct?.toFixed(2)}%，收 ${d.price}`;
+  };
+  const holdings = stocks.filter(s=>s.type==='hold').map(s=>{
+    const d = MOCK_STOCKS[s.code]||{};
+    return d.name || s.code;
+  }).join('、');
+
   const prompt = `你是台股分析師，用繁體中文、150字以內，幫一個不太懂股票的散戶解讀：
 
 昨晚美股收盤數據：
-- 費城半導體（SOX）+2.10%，收5,218點
-- 納斯達克 +1.45%，收18,742點
-- 標普500 +0.98%，收5,308點
-- 輝達（NVDA）+3.22%，收$1,148
-- 美元指數（DXY）-0.31%，收104.2（美元偏弱）
-- 美國10年期公債殖利率 4.42%（微升）
+- ${fmt('SOX','費城半導體（SOX）')}
+- ${fmt('NASDAQ','納斯達克')}
+- ${fmt('SP500','標普500')}
+- ${fmt('NVDA','輝達（NVDA）')}
+- ${fmt('DXY','美元指數（DXY）')}
+- 美國10年期公債殖利率 ${us.US10Y?.price}%
 
-這位散戶的台股持倉主要是：台積電、0050、0056、00878（高股息ETF）
+這位散戶的台股持倉：${holdings}
 
 請用最白話的語言回答：
 ① 昨晚美股對今天台股開盤的影響（一句話）
 ② 對他的持倉特別要注意什麼
 ③ 今天台股開盤預計偏多還是偏空，用「🟢偏多」「🔴偏空」「🟡中性」開頭`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text||'').join('') || '無法取得回應';
+    result.textContent = text;
+    result.classList.add('show');
+  } catch(e) {
+    result.textContent = '⚠️ API 連線失敗，請稍後再試。';
+    result.classList.add('show');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '✦ AI 快讀：昨晚美股對今天台股的影響';
+}
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1851,15 +1936,27 @@ async function getMarketAnalysis(btn) {
   btn.innerHTML = '<div class="spinner"></div> AI 分析中...';
   result.classList.remove('show');
 
+  const us = LIVE_US;
+  const meta = LIVE_META;
+  const fmtUS = (key, name) => {
+    const d = us[key]; if (!d) return '';
+    const sign = d.changePct >= 0 ? '+' : '';
+    return `${name}${sign}${d.changePct?.toFixed(2)}%`;
+  };
+
   const holdings = stocks.map(s => {
     const d = MOCK_STOCKS[s.code] || {};
-    return `${d.name||s.code}(${s.type==='hold'?'持有':'觀察'})`;
+    const shares = ((s.qty||0)*1000)+(s.shares||0);
+    const pl = (d.price && s.cost && shares)
+      ? `損益${((d.price-s.cost)/s.cost*100).toFixed(1)}%`
+      : '';
+    return `${d.name||s.code}(${s.type==='hold'?`持有${pl}`:'觀察'})`;
   }).join('、');
 
   const prompt = `你是台股分析師，用繁體中文、200字以內，整合以下資訊給一個不太懂股票的散戶操作建議：
 
-美股昨晚：費半+2.1%、Nasdaq+1.45%、NVDA+3.22%、美元走弱、公債殖利率微升4.42%
-台股今日：加權22,841（+1.23%）、OTC +0.87%、外資買超328億、投信買超42億、台幣升值至30.42
+美股昨晚：${fmtUS('SOX','費半')}、${fmtUS('NASDAQ','Nasdaq')}、${fmtUS('NVDA','NVDA')}、${fmtUS('DXY','美元指數')}、公債殖利率${us.US10Y?.price}%
+台幣匯率：${meta.usdTwd || '-'}、外資買賣超：${meta.foreignBuy !== null ? (meta.foreignBuy>=0?'+':'')+meta.foreignBuy+'億' : '未知'}
 
 持倉：${holdings}
 
@@ -1869,6 +1966,28 @@ async function getMarketAnalysis(btn) {
 ③ 今天有沒有需要做什麼動作，還是繼續持有就好
 
 語氣像在跟朋友說話，不要太專業術語。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text||'').join('') || '無法取得回應';
+    result.textContent = text;
+    result.classList.add('show');
+  } catch(e) {
+    result.textContent = '⚠️ API 連線失敗';
+    result.classList.add('show');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '✦ AI 整合分析：美股＋台股＋我的持倉今天怎麼看';
+}
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1963,11 +2082,11 @@ function quickAdd(code, name) {
 
 // ─── DCA DATA ───────────────────────────────────────
 let dcaPlans = [
-  { code:'0050', name:'元大台灣50',   day:22, amount:5000,  note:'核心ETF' },
-  { code:'00878',name:'國泰永續高股息',day:22, amount:5000,  note:'高股息存股' },
-  { code:'2330', name:'台積電',        day:10, amount:5000,  note:'半導體龍頭' },
-  { code:'00940',name:'元大台灣價值高息',day:10,amount:10000, note:'價值高息ETF' },
-  { code:'0056', name:'元大高股息',    day:22, amount:5000,  note:'月配息ETF' },
+  { code:'0050',  name:'元大台灣50',      day:22, amount:20000, note:'核心ETF' },
+  { code:'00878', name:'國泰永續高股息',   day:22, amount:5000,  note:'高股息存股' },
+  { code:'2330',  name:'台積電',           day:10, amount:5000,  note:'半導體龍頭' },
+  { code:'00940', name:'元大台灣價值高息', day:10, amount:10000, note:'價值高息ETF' },
+  { code:'0056',  name:'元大高股息',       day:22, amount:5000,  note:'月配息ETF' },
 ];
 let editingDcaIdx = null;
 
