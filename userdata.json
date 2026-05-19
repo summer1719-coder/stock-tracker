@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-18T01:48:44.046Z",
+  "savedAt": "2026-05-19T03:48:48.398Z",
   "version": 1,
   "stocks": [
     {
@@ -64,7 +64,13 @@
     },
     {
       "code": "4533",
-      "type": "watch",
+      "type": "hold",
+      "cost": 31.8,
+      "qty": 1,
+      "shares": 0,
+      "buyDate": "2026-05-19",
+      "stopLoss": null,
+      "target": null,
       "note": "注意本益比偏高"
     }
   ],
