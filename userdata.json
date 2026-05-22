@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-22T01:48:18.979Z",
+  "savedAt": "2026-05-22T15:24:57.218Z",
   "version": 1,
   "stocks": [
     {
@@ -75,11 +75,11 @@
     },
     {
       "code": "2303",
-      "type": "watch",
+      "type": "hold",
       "cost": null,
-      "qty": 0,
+      "qty": 1,
       "shares": 0,
-      "buyDate": null,
+      "buyDate": "2026-05-21",
       "stopLoss": null,
       "target": null,
       "note": ""
