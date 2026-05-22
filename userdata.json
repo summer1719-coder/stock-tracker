@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-05-21T14:59:59.452Z",
+  "savedAt": "2026-05-22T01:48:18.979Z",
   "version": 1,
   "stocks": [
     {
@@ -75,6 +75,17 @@
     },
     {
       "code": "2303",
+      "type": "watch",
+      "cost": null,
+      "qty": 0,
+      "shares": 0,
+      "buyDate": null,
+      "stopLoss": null,
+      "target": null,
+      "note": ""
+    },
+    {
+      "code": "正隆",
       "type": "watch",
       "cost": null,
       "qty": 0,
