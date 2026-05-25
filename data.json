@@ -1,6 +1,6 @@
 {
   "mode": "close",
-  "updatedAt": "2026/05/25 19:37",
+  "updatedAt": "2026/05/25 20:54",
   "tradingDate": "2026/05/25",
   "stocks": {
     "0050": {
@@ -111,10 +111,10 @@
       "last_trade": "2026/05/22"
     },
     "DXY": {
-      "price": 98.98,
+      "price": 98.94,
       "prev": 99.32,
-      "change": -0.34,
-      "changePct": -0.34,
+      "change": -0.38,
+      "changePct": -0.38,
       "last_trade": "2026/05/25"
     },
     "US10Y": {
@@ -125,10 +125,10 @@
       "last_trade": "2026/05/22"
     },
     "VIX": {
-      "price": 16.62,
+      "price": 16.61,
       "prev": 16.7,
-      "change": -0.08,
-      "changePct": -0.48,
+      "change": -0.09,
+      "changePct": -0.54,
       "last_trade": "2026/05/25"
     },
     "GOLD": {
@@ -141,19 +141,19 @@
   },
   "twMarket": {
     "foreignBuy": 0.0,
-    "usdTwd": 31.41,
+    "usdTwd": 31.38,
     "marketNews": []
   },
   "stockNews": {
-    "3006": [],
-    "2330": [],
-    "00940": [],
-    "4533": [],
-    "正隆": [],
     "2303": [],
-    "00878": [],
     "0056": [],
-    "0050": []
+    "0050": [],
+    "00940": [],
+    "3006": [],
+    "4533": [],
+    "2330": [],
+    "正隆": [],
+    "00878": []
   },
   "openingPreview": null,
   "premarketAt": null
