@@ -350,4 +350,35 @@ def run_close():
 
     output = {
         "mode"       : "close",
-        "updated
+        "updatedAt"  : now.strftime('%Y/%m/%d %H:%M'),
+        "tradingDate": now.strftime('%Y/%m/%d'),
+        "stocks"     : tw_stocks,
+        "usMarkets"  : us_markets,
+        "twMarket"   : {
+            "foreignBuy" : foreign,
+            "usdTwd"     : usd_twd,
+            "marketNews" : market_news,
+        },
+        "stockNews"  : stock_news,
+        "openingPreview": existing.get("openingPreview"),
+        "premarketAt": existing.get("premarketAt")
+    }
+
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump(output, f, ensure_ascii=False, indent=2)
+
+    total_news = sum(len(v) for v in stock_news.values())
+    log(f"=== 收盤後任務完成！台股 {len(tw_stocks)} 檔、新聞 {total_news} 則 ===")
+
+# ── 主程式 ──────────────────────────────────────────────────────
+
+def main():
+    mode = detect_mode()
+    
+    if mode == 'premarket':
+        run_premarket()
+    else:
+        run_close()
+
+if __name__ == '__main__':
+    main()
