@@ -4415,78 +4415,78 @@
   "v": "v5",
   "syncAt": "2026-05-31T04:11:43.922Z",
   "mode": "premarket",
-  "premarketAt": "2026/06/02 05:08",
+  "premarketAt": "2026/06/03 01:52",
   "usMarkets": {
     "SOX": {
-      "price": 12965.65,
-      "prev": 12829.38,
-      "change": 136.27,
-      "changePct": 1.06,
-      "last_trade": "2026/06/01"
+      "price": 13553.24,
+      "prev": 12965.65,
+      "change": 587.59,
+      "changePct": 4.53,
+      "last_trade": "2026/06/02"
     },
     "NASDAQ": {
-      "price": 27086.81,
-      "prev": 26972.62,
-      "change": 114.19,
-      "changePct": 0.42,
-      "last_trade": "2026/06/01"
+      "price": 27094.83,
+      "prev": 27086.81,
+      "change": 8.02,
+      "changePct": 0.03,
+      "last_trade": "2026/06/02"
     },
     "SP500": {
-      "price": 7599.96,
-      "prev": 7580.06,
-      "change": 19.9,
-      "changePct": 0.26,
-      "last_trade": "2026/06/01"
+      "price": 7608.56,
+      "prev": 7599.96,
+      "change": 8.6,
+      "changePct": 0.11,
+      "last_trade": "2026/06/02"
     },
     "NVDA": {
-      "price": 224.36,
-      "prev": 211.14,
-      "change": 13.22,
-      "changePct": 6.26,
-      "last_trade": "2026/06/01"
+      "price": 222.82,
+      "prev": 224.36,
+      "change": -1.54,
+      "changePct": -0.69,
+      "last_trade": "2026/06/02"
     },
     "DXY": {
-      "price": 99.19,
-      "prev": 98.91,
-      "change": 0.28,
-      "changePct": 0.28,
-      "last_trade": "2026/06/01"
+      "price": 99.27,
+      "prev": 99.2,
+      "change": 0.07,
+      "changePct": 0.07,
+      "last_trade": "2026/06/02"
     },
     "US10Y": {
-      "price": 4.47,
-      "prev": 4.45,
-      "change": 0.02,
-      "changePct": 0.45,
-      "last_trade": "2026/06/01"
+      "price": 4.45,
+      "prev": 4.47,
+      "change": -0.02,
+      "changePct": -0.45,
+      "last_trade": "2026/06/02"
     },
     "VIX": {
-      "price": 16.05,
-      "prev": 15.32,
-      "change": 0.73,
-      "changePct": 4.77,
-      "last_trade": "2026/06/01"
+      "price": 16.06,
+      "prev": 16.05,
+      "change": 0.01,
+      "changePct": 0.06,
+      "last_trade": "2026/06/02"
     },
     "GOLD": {
       "price": 4514.0,
-      "prev": 4560.5,
-      "change": -46.5,
-      "changePct": -1.02,
-      "last_trade": "2026/06/01"
+      "prev": 4475.2,
+      "change": 38.8,
+      "changePct": 0.87,
+      "last_trade": "2026/06/02"
     }
   },
   "twMarket": {
-    "usdTwd": 31.29
+    "usdTwd": 31.41
   },
   "openingPreview": {
-    "outlook": "🟢 偏多",
-    "summary": "美股昨晚表現強勁，市場情緒穩定，台股今日開盤預計跟漲，科技股尤其值得關注。",
+    "outlook": "🟢 小幅偏多",
+    "summary": "美股昨晚小漲，台股今日開盤預計溫和上漲，整體氣氛尚可。",
     "details": [
-      "費半 1.06%（正面訊號，直接影響台積電等半導體股）",
-      "輝達 6.26%（AI概念股跟漲）",
-      "美國10年期公債 4.47%（資金流向參考）",
-      "VIX 恐慌指數 16.05（小於20，市場情緒尚屬穩定）",
+      "費半 4.53%（正面訊號，直接影響台積電等半導體股）",
+      "輝達 -0.69%（AI族群可能承壓）",
+      "美國10年期公債 4.45%（資金流向參考）",
+      "VIX 恐慌指數 16.06（小於20，市場情緒尚屬穩定）",
       "黃金價格 4514.0（避險情緒指標）"
     ],
-    "score": 3
+    "score": 2
   }
 }
