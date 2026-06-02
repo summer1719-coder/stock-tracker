@@ -4415,41 +4415,41 @@
   "v": "v5",
   "syncAt": "2026-05-31T04:11:43.922Z",
   "mode": "premarket",
-  "premarketAt": "2026/06/03 01:52",
+  "premarketAt": "2026/06/03 03:57",
   "usMarkets": {
     "SOX": {
-      "price": 13553.24,
+      "price": 13724.3,
       "prev": 12965.65,
-      "change": 587.59,
-      "changePct": 4.53,
+      "change": 758.65,
+      "changePct": 5.85,
       "last_trade": "2026/06/02"
     },
     "NASDAQ": {
-      "price": 27094.83,
+      "price": 27095.25,
       "prev": 27086.81,
-      "change": 8.02,
+      "change": 8.44,
       "changePct": 0.03,
       "last_trade": "2026/06/02"
     },
     "SP500": {
-      "price": 7608.56,
+      "price": 7610.19,
       "prev": 7599.96,
-      "change": 8.6,
-      "changePct": 0.11,
+      "change": 10.23,
+      "changePct": 0.13,
       "last_trade": "2026/06/02"
     },
     "NVDA": {
-      "price": 222.82,
+      "price": 222.57,
       "prev": 224.36,
-      "change": -1.54,
-      "changePct": -0.69,
+      "change": -1.79,
+      "changePct": -0.8,
       "last_trade": "2026/06/02"
     },
     "DXY": {
-      "price": 99.27,
+      "price": 99.21,
       "prev": 99.2,
-      "change": 0.07,
-      "changePct": 0.07,
+      "change": 0.01,
+      "changePct": 0.01,
       "last_trade": "2026/06/02"
     },
     "US10Y": {
@@ -4460,32 +4460,32 @@
       "last_trade": "2026/06/02"
     },
     "VIX": {
-      "price": 16.06,
+      "price": 15.86,
       "prev": 16.05,
-      "change": 0.01,
-      "changePct": 0.06,
+      "change": -0.19,
+      "changePct": -1.18,
       "last_trade": "2026/06/02"
     },
     "GOLD": {
-      "price": 4514.0,
+      "price": 4517.4,
       "prev": 4475.2,
-      "change": 38.8,
-      "changePct": 0.87,
+      "change": 42.2,
+      "changePct": 0.94,
       "last_trade": "2026/06/02"
     }
   },
   "twMarket": {
-    "usdTwd": 31.41
+    "usdTwd": 31.43
   },
   "openingPreview": {
     "outlook": "🟢 小幅偏多",
     "summary": "美股昨晚小漲，台股今日開盤預計溫和上漲，整體氣氛尚可。",
     "details": [
-      "費半 4.53%（正面訊號，直接影響台積電等半導體股）",
-      "輝達 -0.69%（AI族群可能承壓）",
+      "費半 5.85%（正面訊號，直接影響台積電等半導體股）",
+      "輝達 -0.8%（AI族群可能承壓）",
       "美國10年期公債 4.45%（資金流向參考）",
-      "VIX 恐慌指數 16.06（小於20，市場情緒尚屬穩定）",
-      "黃金價格 4514.0（避險情緒指標）"
+      "VIX 恐慌指數 15.86（小於20，市場情緒尚屬穩定）",
+      "黃金價格 4517.4（避險情緒指標）"
     ],
     "score": 2
   }
