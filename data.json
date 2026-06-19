@@ -1,7 +1,7 @@
 {
-  "mode": "premarket",
-  "updatedAt": "2026/06/18 19:16",
-  "tradingDate": "2026/06/18",
+  "mode": "close",
+  "updatedAt": "2026/06/19 19:41",
+  "tradingDate": "2026/06/19",
   "stocks": {
     "0050": {
       "name": "元大台灣50",
@@ -133,46 +133,46 @@
       "last_trade": "2026/06/18"
     },
     "DXY": {
-      "price": 101.07,
+      "price": 100.78,
       "prev": 100.85,
-      "change": 0.22,
-      "changePct": 0.22,
+      "change": -0.07,
+      "changePct": -0.07,
       "last_trade": "2026/06/19"
     },
     "VIX": {
-      "price": 16.4,
-      "prev": 18.44,
-      "change": -2.04,
-      "changePct": -11.06,
-      "last_trade": "2026/06/18"
+      "price": 17.17,
+      "prev": 16.4,
+      "change": 0.77,
+      "changePct": 4.7,
+      "last_trade": "2026/06/19"
     },
     "GOLD": {
-      "price": 4155.1,
+      "price": 4162.8,
       "prev": 4224.1,
-      "change": -69.0,
-      "changePct": -1.63,
+      "change": -61.3,
+      "changePct": -1.45,
       "last_trade": "2026/06/19"
     }
   },
   "twMarket": {
     "foreignBuy": 0.0,
-    "usdTwd": 31.68,
+    "usdTwd": 31.6,
     "marketNews": []
   },
   "stockNews": {
-    "00878": [],
-    "正隆": [],
-    "2303": [],
-    "7841": [],
-    "3006": [],
     "2330": [],
-    "群創": [],
+    "2303": [],
     "0050": [],
-    "4533": [],
-    "1528": [],
     "2344": [],
+    "正隆": [],
     "00940": [],
-    "0056": []
+    "0056": [],
+    "1528": [],
+    "00878": [],
+    "3006": [],
+    "群創": [],
+    "7841": [],
+    "4533": []
   },
   "openingPreview": {
     "outlook": "🟢 偏多",
