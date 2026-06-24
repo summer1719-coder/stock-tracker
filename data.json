@@ -1,108 +1,8 @@
 {
-  "mode": "premarket",
-  "updatedAt": "2026/06/23 18:41",
-  "tradingDate": "2026/06/23",
-  "stocks": {
-    "0050": {
-      "name": "元大台灣50",
-      "price": 110.1,
-      "prev": 111.15,
-      "high": 112.3,
-      "low": 110.05,
-      "change": -1.05,
-      "changePct": -0.94,
-      "vol": "130,786張",
-      "source": "TWSE"
-    },
-    "0056": {
-      "name": "元大高股息",
-      "price": 53.6,
-      "prev": 54.05,
-      "high": 54.9,
-      "low": 53.6,
-      "change": -0.45,
-      "changePct": -0.83,
-      "vol": "53,667張",
-      "source": "TWSE"
-    },
-    "00878": {
-      "name": "國泰永續高股息",
-      "price": 33.98,
-      "prev": 34.12,
-      "high": 34.62,
-      "low": 33.98,
-      "change": -0.14,
-      "changePct": -0.41,
-      "vol": "48,726張",
-      "source": "TWSE"
-    },
-    "00940": {
-      "name": "元大台灣價值高息",
-      "price": 12.69,
-      "prev": 12.83,
-      "high": 12.96,
-      "low": 12.67,
-      "change": -0.14,
-      "changePct": -1.09,
-      "vol": "26,545張",
-      "source": "TWSE"
-    },
-    "1528": {
-      "name": "恩德",
-      "price": 24.9,
-      "prev": 25.55,
-      "high": 25.6,
-      "low": 24.65,
-      "change": -0.65,
-      "changePct": -2.54,
-      "vol": "3,892張",
-      "source": "TWSE"
-    },
-    "2303": {
-      "name": "聯電",
-      "price": 170.0,
-      "prev": 160.0,
-      "high": 176.0,
-      "low": 167.5,
-      "change": 10.0,
-      "changePct": 6.25,
-      "vol": "550,642張",
-      "source": "TWSE"
-    },
-    "2330": {
-      "name": "台積電",
-      "price": 2490.0,
-      "prev": 2510.0,
-      "high": 2535.0,
-      "low": 2490.0,
-      "change": -20.0,
-      "changePct": -0.8,
-      "vol": "39,537張",
-      "source": "TWSE"
-    },
-    "2344": {
-      "name": "華邦電",
-      "price": 211.5,
-      "prev": 222.0,
-      "high": 222.0,
-      "low": 205.5,
-      "change": -10.5,
-      "changePct": -4.73,
-      "vol": "263,314張",
-      "source": "TWSE"
-    },
-    "3006": {
-      "name": "晶豪科",
-      "price": 245.0,
-      "prev": 254.0,
-      "high": 269.0,
-      "low": 244.0,
-      "change": -9.0,
-      "changePct": -3.54,
-      "vol": "29,723張",
-      "source": "TWSE"
-    }
-  },
+  "mode": "close",
+  "updatedAt": "2026/06/24 18:27",
+  "tradingDate": "2026/06/24",
+  "stocks": {},
   "usMarkets": {
     "SOX": {
       "price": 13482.51,
@@ -133,53 +33,53 @@
       "last_trade": "2026/06/23"
     },
     "DXY": {
-      "price": 101.47,
+      "price": 101.68,
       "prev": 101.41,
-      "change": 0.06,
-      "changePct": 0.06,
+      "change": 0.27,
+      "changePct": 0.27,
       "last_trade": "2026/06/24"
     },
     "US10Y": {
-      "price": 4.49,
-      "prev": 4.45,
-      "change": 0.04,
-      "changePct": 0.9,
-      "last_trade": "2026/06/23"
+      "price": 4.45,
+      "prev": 4.46,
+      "change": -0.01,
+      "changePct": -0.22,
+      "last_trade": "2026/06/18"
     },
     "VIX": {
-      "price": 19.49,
-      "prev": 17.28,
-      "change": 2.21,
-      "changePct": 12.79,
-      "last_trade": "2026/06/23"
+      "price": 19.29,
+      "prev": 19.49,
+      "change": -0.2,
+      "changePct": -1.03,
+      "last_trade": "2026/06/24"
     },
     "GOLD": {
-      "price": 4081.9,
+      "price": 4074.0,
       "prev": 4129.9,
-      "change": -48.0,
-      "changePct": -1.16,
+      "change": -55.9,
+      "changePct": -1.35,
       "last_trade": "2026/06/24"
     }
   },
   "twMarket": {
     "foreignBuy": 0.0,
-    "usdTwd": 31.76,
+    "usdTwd": 31.77,
     "marketNews": []
   },
   "stockNews": {
-    "00940": [],
+    "0050": [],
     "4533": [],
     "2303": [],
-    "0050": [],
-    "00878": [],
-    "7841": [],
     "2344": [],
+    "00878": [],
+    "00940": [],
     "3006": [],
-    "2330": [],
     "正隆": [],
-    "0056": [],
+    "2330": [],
     "1528": [],
-    "群創": []
+    "7841": [],
+    "群創": [],
+    "0056": []
   },
   "openingPreview": {
     "outlook": "🔴 偏空",
