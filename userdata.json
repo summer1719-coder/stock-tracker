@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-06-25T05:37:35.293Z",
+  "savedAt": "2026-06-25T05:37:53.869Z",
   "version": 1,
   "stocks": [
     {
@@ -18,7 +18,7 @@
       "type": "hold",
       "cost": 78.15,
       "qty": 7,
-      "shares": 11,
+      "shares": 188,
       "buyDate": "2024-02-15",
       "stopLoss": null,
       "target": null,
