@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-06-25T05:38:32.115Z",
+  "savedAt": "2026-06-25T05:38:51.375Z",
   "version": 1,
   "stocks": [
     {
@@ -50,8 +50,8 @@
       "code": "00940",
       "type": "hold",
       "cost": 10.51,
-      "qty": 3,
-      "shares": 886,
+      "qty": 4,
+      "shares": 705,
       "buyDate": "2026-04-17",
       "stopLoss": null,
       "target": null,
