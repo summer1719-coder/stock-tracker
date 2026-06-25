@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-06-25T05:38:17.236Z",
+  "savedAt": "2026-06-25T05:38:32.115Z",
   "version": 1,
   "stocks": [
     {
@@ -61,17 +61,6 @@
       "code": "3006",
       "type": "watch",
       "note": "AI Server IC，觀察突破"
-    },
-    {
-      "code": "4533",
-      "type": "hold",
-      "cost": 31.8,
-      "qty": 1,
-      "shares": 0,
-      "buyDate": "2026-05-19",
-      "stopLoss": null,
-      "target": null,
-      "note": "注意本益比偏高"
     },
     {
       "code": "2303",
