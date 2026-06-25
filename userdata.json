@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-06-25T05:39:13.052Z",
+  "savedAt": "2026-06-25T05:39:16.976Z",
   "version": 1,
   "stocks": [
     {
@@ -93,17 +93,6 @@
       "buyDate": null,
       "stopLoss": null,
       "target": null,
-      "note": ""
-    },
-    {
-      "code": "群創",
-      "type": "hold",
-      "cost": 56.85,
-      "qty": 1,
-      "shares": 0,
-      "buyDate": "2026-06-02",
-      "stopLoss": null,
-      "target": 58,
       "note": ""
     },
     {
