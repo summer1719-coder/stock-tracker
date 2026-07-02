@@ -1,7 +1,7 @@
 {
-  "mode": "premarket",
-  "updatedAt": "2026/07/01 18:48",
-  "tradingDate": "2026/07/01",
+  "mode": "close",
+  "updatedAt": "2026/07/02 18:14",
+  "tradingDate": "2026/07/02",
   "stocks": {},
   "usMarkets": {
     "SOX": {
@@ -33,50 +33,50 @@
       "last_trade": "2026/07/01"
     },
     "DXY": {
-      "price": 101.34,
+      "price": 101.03,
       "prev": 101.39,
-      "change": -0.05,
-      "changePct": -0.05,
+      "change": -0.36,
+      "changePct": -0.36,
       "last_trade": "2026/07/02"
     },
     "US10Y": {
-      "price": 4.47,
-      "prev": 4.37,
-      "change": 0.1,
-      "changePct": 2.29,
-      "last_trade": "2026/07/01"
+      "price": 4.37,
+      "prev": 4.39,
+      "change": -0.02,
+      "changePct": -0.46,
+      "last_trade": "2026/06/26"
     },
     "VIX": {
-      "price": 16.59,
-      "prev": 16.45,
+      "price": 16.73,
+      "prev": 16.59,
       "change": 0.14,
-      "changePct": 0.85,
-      "last_trade": "2026/07/01"
+      "changePct": 0.84,
+      "last_trade": "2026/07/02"
     },
     "GOLD": {
-      "price": 4075.7,
+      "price": 4076.2,
       "prev": 4068.3,
-      "change": 7.4,
-      "changePct": 0.18,
+      "change": 7.9,
+      "changePct": 0.19,
       "last_trade": "2026/07/02"
     }
   },
   "twMarket": {
     "foreignBuy": 0.0,
-    "usdTwd": 31.9,
+    "usdTwd": 31.89,
     "marketNews": []
   },
   "stockNews": {
-    "2330": [],
-    "0056": [],
-    "3006": [],
     "0050": [],
+    "0056": [],
     "7841": [],
-    "4533": [],
-    "00878": [],
+    "2344": [],
     "1528": [],
     "正隆": [],
-    "2344": [],
+    "3006": [],
+    "00878": [],
+    "4533": [],
+    "2330": [],
     "00940": []
   },
   "openingPreview": {
