@@ -1,5 +1,5 @@
 {
-  "mode": "close",
+  "mode": "premarket",
   "updatedAt": "2026/09/07 21:28",
   "tradingDate": "2026/09/07",
   "stocks": {},
@@ -33,11 +33,11 @@
       "last_trade": "2026/09/04"
     },
     "DXY": {
-      "price": 98.93,
+      "price": 98.82,
       "prev": 99.16,
-      "change": -0.23,
-      "changePct": -0.23,
-      "last_trade": "2026/09/07"
+      "change": -0.34,
+      "changePct": -0.34,
+      "last_trade": "2026/09/08"
     },
     "US10Y": {
       "price": 4.78,
@@ -47,23 +47,23 @@
       "last_trade": "2026/09/04"
     },
     "VIX": {
-      "price": 15.14,
+      "price": 15.3,
       "prev": 14.53,
-      "change": 0.61,
-      "changePct": 4.2,
+      "change": 0.77,
+      "changePct": 5.3,
       "last_trade": "2026/09/07"
     },
     "GOLD": {
-      "price": 4476.6,
+      "price": 4477.9,
       "prev": 4429.8,
-      "change": 46.8,
-      "changePct": 1.06,
-      "last_trade": "2026/09/07"
+      "change": 48.1,
+      "changePct": 1.09,
+      "last_trade": "2026/09/08"
     }
   },
   "twMarket": {
     "foreignBuy": 0.0,
-    "usdTwd": 31.51,
+    "usdTwd": 31.47,
     "marketNews": []
   },
   "stockNews": {
@@ -86,10 +86,10 @@
       "費半 3.37%（正面訊號，直接影響台積電等半導體股）",
       "輝達 0.84%（AI概念股跟漲）",
       "美國10年期公債 4.78%（資金流向參考）",
-      "VIX 恐慌指數 14.53（小於20，市場情緒尚屬穩定）",
-      "黃金價格 4476.6（避險情緒指標）"
+      "VIX 恐慌指數 15.3（小於20，市場情緒尚屬穩定）",
+      "黃金價格 4477.9（避險情緒指標）"
     ],
     "score": 3
   },
-  "premarketAt": "2026/09/07 13:14"
+  "premarketAt": "2026/09/08 13:18"
 }
