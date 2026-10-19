@@ -1,83 +1,83 @@
 {
-  "mode": "premarket",
-  "updatedAt": "2026/10/16 20:20",
-  "tradingDate": "2026/10/16",
+  "mode": "close",
+  "updatedAt": "2026/10/19 22:37",
+  "tradingDate": "2026/10/19",
   "stocks": {},
   "usMarkets": {
     "SOX": {
-      "price": 11137.29,
-      "prev": 11581.21,
-      "change": -443.92,
-      "changePct": -3.83,
-      "last_trade": "2026/10/16"
+      "price": 11404.37,
+      "prev": 11137.29,
+      "change": 267.08,
+      "changePct": 2.4,
+      "last_trade": "2026/10/19"
     },
     "NASDAQ": {
-      "price": 26140.03,
-      "prev": 26713.03,
-      "change": -573.0,
-      "changePct": -2.15,
-      "last_trade": "2026/10/16"
+      "price": 26470.57,
+      "prev": 26140.03,
+      "change": 330.54,
+      "changePct": 1.26,
+      "last_trade": "2026/10/19"
     },
     "SP500": {
-      "price": 7659.44,
-      "prev": 7744.06,
-      "change": -84.62,
-      "changePct": -1.09,
-      "last_trade": "2026/10/16"
+      "price": 7700.91,
+      "prev": 7659.44,
+      "change": 41.47,
+      "changePct": 0.54,
+      "last_trade": "2026/10/19"
     },
     "NVDA": {
-      "price": 214.13,
-      "prev": 217.23,
-      "change": -3.1,
-      "changePct": -1.43,
-      "last_trade": "2026/10/16"
+      "price": 217.27,
+      "prev": 214.13,
+      "change": 3.14,
+      "changePct": 1.47,
+      "last_trade": "2026/10/19"
     },
     "DXY": {
-      "price": 101.82,
+      "price": 101.93,
       "prev": 101.84,
-      "change": -0.02,
-      "changePct": -0.02,
+      "change": 0.09,
+      "changePct": 0.09,
       "last_trade": "2026/10/19"
     },
     "US10Y": {
-      "price": 5.1,
-      "prev": 5.09,
+      "price": 5.11,
+      "prev": 5.1,
       "change": 0.01,
       "changePct": 0.2,
-      "last_trade": "2026/10/16"
+      "last_trade": "2026/10/19"
     },
     "VIX": {
-      "price": 19.99,
-      "prev": 16.46,
-      "change": 3.53,
-      "changePct": 21.45,
-      "last_trade": "2026/10/16"
+      "price": 17.7,
+      "prev": 19.99,
+      "change": -2.29,
+      "changePct": -11.46,
+      "last_trade": "2026/10/19"
     },
     "GOLD": {
-      "price": 4203.6,
+      "price": 4169.0,
       "prev": 4181.1,
-      "change": 22.5,
-      "changePct": 0.54,
+      "change": -12.1,
+      "changePct": -0.29,
       "last_trade": "2026/10/19"
     }
   },
   "twMarket": {
-    "foreignBuy": null,
-    "usdTwd": 32.47,
+    "foreignBuy": 0.0,
+    "usdTwd": 32.46,
     "marketNews": []
   },
   "stockNews": {
+    "7841": [],
+    "3006": [],
+    "00878": [],
+    "1528": [],
     "00940": [],
     "2344": [],
-    "0050": [],
-    "4533": [],
-    "7841": [],
-    "1528": [],
-    "00878": [],
-    "正隆": [],
-    "0056": [],
     "2330": [],
-    "3006": []
+    "0050": [],
+    "正隆": [],
+    "4533": [],
+    "0056": []
   },
   "openingPreview": {
     "outlook": "🔴 偏空",
