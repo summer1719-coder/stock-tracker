@@ -1,43 +1,43 @@
 {
-  "mode": "premarket",
-  "updatedAt": "2026/11/02 14:53",
-  "tradingDate": "2026/11/02",
+  "mode": "close",
+  "updatedAt": "2026/11/03 15:16",
+  "tradingDate": "2026/11/03",
   "stocks": {},
   "usMarkets": {
     "SOX": {
-      "price": 10674.12,
+      "price": 10328.33,
       "prev": 10688.8,
-      "change": -14.68,
-      "changePct": -0.14,
+      "change": -360.47,
+      "changePct": -3.37,
       "last_trade": "2026/11/02"
     },
     "NASDAQ": {
-      "price": 25609.72,
+      "price": 25164.31,
       "prev": 25437.0,
-      "change": 172.72,
-      "changePct": 0.68,
+      "change": -272.69,
+      "changePct": -1.07,
       "last_trade": "2026/11/02"
     },
     "SP500": {
-      "price": 7624.14,
+      "price": 7541.4,
       "prev": 7580.07,
-      "change": 44.07,
-      "changePct": 0.58,
+      "change": -38.67,
+      "changePct": -0.51,
       "last_trade": "2026/11/02"
     },
     "NVDA": {
-      "price": 207.05,
+      "price": 202.06,
       "prev": 204.64,
-      "change": 2.41,
-      "changePct": 1.18,
+      "change": -2.58,
+      "changePct": -1.26,
       "last_trade": "2026/11/02"
     },
     "DXY": {
-      "price": 101.7,
-      "prev": 101.88,
-      "change": -0.18,
-      "changePct": -0.18,
-      "last_trade": "2026/11/02"
+      "price": 101.74,
+      "prev": 101.75,
+      "change": -0.01,
+      "changePct": -0.01,
+      "last_trade": "2026/11/03"
     },
     "US10Y": {
       "price": 4.89,
@@ -47,37 +47,37 @@
       "last_trade": "2026/11/02"
     },
     "VIX": {
-      "price": 18.83,
+      "price": 21.15,
       "prev": 19.42,
-      "change": -0.59,
-      "changePct": -3.04,
+      "change": 1.73,
+      "changePct": 8.91,
       "last_trade": "2026/11/02"
     },
     "GOLD": {
-      "price": 3978.5,
-      "prev": 3898.9,
-      "change": 79.6,
-      "changePct": 2.04,
-      "last_trade": "2026/11/02"
+      "price": 3920.7,
+      "prev": 3969.6,
+      "change": -48.9,
+      "changePct": -1.23,
+      "last_trade": "2026/11/03"
     }
   },
   "twMarket": {
     "foreignBuy": 0.0,
-    "usdTwd": 32.55,
+    "usdTwd": 32.79,
     "marketNews": []
   },
   "stockNews": {
     "正隆": [],
+    "4533": [],
     "0050": [],
-    "0056": [],
-    "3006": [],
     "2330": [],
     "00940": [],
+    "0056": [],
     "2344": [],
     "00878": [],
-    "4533": [],
     "7841": [],
-    "1528": []
+    "1528": [],
+    "3006": []
   },
   "openingPreview": {
     "outlook": "🔴 小幅偏空",
